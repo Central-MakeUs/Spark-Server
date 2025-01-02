@@ -31,7 +31,11 @@ jobs:
 
     # 3. Docker 이미지 빌드
     - name: docker image build
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest .
+      run: |
+        IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/spark
+        TAG=$(date +'%Y%m%d%H%M')  # 시간 기반 태그 생성
+        docker build -t $IMAGE_NAME:$TAG .
+        docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest
 
 
     # 4. DockerHub 로그인
