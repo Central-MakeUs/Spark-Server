@@ -3,8 +3,6 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -36,16 +34,27 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # 5. Docker 이미지 빌드 및 푸시
+      # 5. Docker 이미지 빌드 및 푸시 (latest만 적용)
       - name: Build and Push Docker image
         run: |
           IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/spark
-          TAG=$(date +'%Y%m%d%H%M')  # 현재 시간 기반 태그 생성
-          
-          # 이미지 빌드 및 태그 설정
-          docker build -t $IMAGE_NAME:$TAG .
-          docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest
-          
-          # Docker Hub로 푸시
-          docker push $IMAGE_NAME:$TAG
+          docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
+  deploy-to-ec2:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+    steps:
+      # 1. SSH 설정
+      - name: SSH into EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker stop spark-container || true
+            docker rm spark-container || true
+            docker image prune -f
+            
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
+            docker run -d -p 8080:8080 --name spark-container ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
