@@ -13,7 +13,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/
     username: root
-    password: sdpark98@
+    password: root
 
     properties:
       hibernate:
@@ -31,4 +31,4 @@ oauth:
 server:
   servlet:
     context-path: /api
-
+  url: https://15.165.112.52:8080
