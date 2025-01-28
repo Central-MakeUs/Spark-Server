@@ -1,10 +1,7 @@
 spring:
   jpa:
-    database: mysql
-    show-sql: true
-    generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   security:
     oauth2:
       client:
