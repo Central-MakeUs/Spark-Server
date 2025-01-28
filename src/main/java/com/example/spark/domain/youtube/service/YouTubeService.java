@@ -71,7 +71,8 @@ public class YouTubeService {
                 + "&dimensions=video"
                 + "&metrics=views"
                 + "&startDate=1970-01-01"
-                + "&endDate=2025-01-15"
+                //endDate는 오늘 날짜로 설정
+                + "&endDate=" + LocalDate.now()
                 + "&sort=-views"
                 + "&maxResults=3";
         analyticsApiUrl = String.format(analyticsApiUrl, channelId);
