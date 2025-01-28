@@ -16,7 +16,7 @@ spring:
               - https://www.googleapis.com/auth/youtube.readonly
               - https://www.googleapis.com/auth/yt-analytics.readonly
               - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
-            redirect-uri: "${GOOGLE_CLIENT_REDIRECT_URI}"
+            redirect-uri: "${GOOGLE_REDIRECT_URI}"
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
