@@ -7,7 +7,6 @@ build/
 
 src/main/resources/key/**
 application.yml
-application-prod.yml
 deploy.sh
 schema.json
 

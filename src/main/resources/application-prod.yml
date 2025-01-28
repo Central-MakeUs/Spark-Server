@@ -1,10 +1,7 @@
 spring:
   jpa:
-    database: mysql
-    show-sql: true
-    generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   security:
     oauth2:
       client:
@@ -16,22 +13,16 @@ spring:
               - https://www.googleapis.com/auth/youtube.readonly
               - https://www.googleapis.com/auth/yt-analytics.readonly
               - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
-            redirect-uri: "${GOOGLE_REDIRECT_URI}"
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
             token-uri: https://oauth2.googleapis.com/token
-
-    properties:
-      hibernate:
-        format_sql: true
-oauth:
-
 server:
   servlet:
     context-path: /api
 
 springdoc:
   swagger-ui:
-    oauth2-redirect-url: http://localhost:8080/api/oauth/google
+    oauth2-redirect-url: https://app-spark.shop/api/oauth/google
     enable: true

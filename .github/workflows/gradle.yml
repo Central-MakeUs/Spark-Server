@@ -52,9 +52,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            set -ex
             docker stop spark-container || true
             docker rm spark-container || true
             docker image prune -f
             
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
-            docker run -d -p 8080:8080 --name spark-container ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
+            docker run -d -p 8080:8080 \
+                -e SPRING_PROFILES_ACTIVE=prod \
+                -e DB_URL=${{ secrets.PROD_DB_URL }} \
+                -e DB_USERNAME=${{ secrets.PROD_DB_USERNAME }} \
+                -e DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }} \
+                --name spark-container ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
