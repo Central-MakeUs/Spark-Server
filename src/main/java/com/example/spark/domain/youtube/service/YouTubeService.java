@@ -1,16 +1,15 @@
 package com.example.spark.domain.youtube.service;
 
-import com.example.spark.domain.youtube.dto.YouTubeChannelProfileDto;
-import com.example.spark.domain.youtube.dto.YouTubeVideoDto;
-import com.example.spark.domain.youtube.dto.YouTubeAnalyticsResponse;
-import com.example.spark.domain.youtube.dto.YouTubeApiResponse;
-import com.example.spark.domain.youtube.dto.YouTubeChannelProfileResponse;
+import com.example.spark.domain.youtube.dto.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 
@@ -160,6 +159,94 @@ public class YouTubeService {
         List<YouTubeVideoDto> topVideos = getVideoDetails(accessToken, videoIds);
 
         return topVideos;
+    }
+
+    public List<YouTubeChannelStatsDto> getChannelStats(String accessToken, String channelId) {
+        // 현재 날짜 기준으로 동적으로 날짜 범위 계산
+        List<DateRange> dateRanges = calculateDateRanges();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        List<YouTubeChannelStatsDto> allChannelStats = new ArrayList<>();
+
+        for (DateRange dateRange : dateRanges) {
+            String analyticsApiUrl = String.format(
+                    "https://youtubeanalytics.googleapis.com/v2/reports"
+                            + "?ids=channel==%s"
+                            + "&metrics=subscribersGained,subscribersLost,views,likes,comments,shares,estimatedRevenue,averageViewDuration"
+                            + "&startDate=%s"
+                            + "&endDate=%s",
+                    channelId,
+                    dateRange.getStartDate(),
+                    dateRange.getEndDate()
+            );
+
+            ResponseEntity<YouTubeAnalyticsResponse> response = restTemplate.exchange(
+                    analyticsApiUrl,
+                    HttpMethod.GET,
+                    entity,
+                    YouTubeAnalyticsResponse.class
+            );
+
+            YouTubeAnalyticsResponse analyticsResponse = response.getBody();
+
+            if (analyticsResponse == null || analyticsResponse.getRows() == null) {
+                throw new RuntimeException("YouTube Analytics API 응답이 비어 있습니다.");
+            }
+
+            // 채널 통계 데이터를 변환하여 리스트에 추가
+            List<YouTubeChannelStatsDto> channelStats = analyticsResponse.getRows().stream()
+                    .map(row -> new YouTubeChannelStatsDto(
+                            dateRange.getStartDate(),
+                            dateRange.getEndDate(),
+                            Long.parseLong(row.get(2)), // views
+                            Long.parseLong(row.get(0)), // subscribersGained
+                            Long.parseLong(row.get(1)), // subscribersLost
+                            Long.parseLong(row.get(3)), // likes
+                            Long.parseLong(row.get(4)), // comments
+                            Long.parseLong(row.get(5)), // shares
+                            Double.parseDouble(row.get(6)), // estimatedRevenue
+                            Long.parseLong(row.get(7)) // averageViewDuration
+                    ))
+                    .toList();
+
+            allChannelStats.addAll(channelStats);
+        }
+
+        return allChannelStats;
+    }
+
+    // 날짜 범위 계산
+    private List<DateRange> calculateDateRanges() {
+        LocalDate today = LocalDate.now();
+        List<DateRange> dateRanges = new ArrayList<>();
+
+        dateRanges.add(new DateRange(today.minusDays(30).toString(), today.toString())); // 최근 30일
+        dateRanges.add(new DateRange(today.minusDays(60).toString(), today.minusDays(30).toString())); // 최근 30~60일
+        dateRanges.add(new DateRange(today.minusDays(90).toString(), today.minusDays(60).toString())); // 최근 60~90일
+
+        return dateRanges;
+    }
+
+    // 날짜 범위를 저장할 내부 클래스
+    private static class DateRange {
+        private final String startDate;
+        private final String endDate;
+
+        public DateRange(String startDate, String endDate) {
+            this.startDate = startDate;
+            this.endDate = endDate;
+        }
+
+        public String getStartDate() {
+            return startDate;
+        }
+
+        public String getEndDate() {
+            return endDate;
+        }
     }
 
 }
