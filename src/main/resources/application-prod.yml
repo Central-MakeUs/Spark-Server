@@ -24,5 +24,6 @@ server:
 
 springdoc:
   swagger-ui:
+    server-url: https://app-spark.shop/api
     oauth2-redirect-url: https://app-spark.shop/api/oauth/google
     enable: true
