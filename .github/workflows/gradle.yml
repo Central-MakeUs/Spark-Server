@@ -60,7 +60,7 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
             docker run -d -p 8080:8080 \
                 -e SPRING_PROFILES_ACTIVE=prod \
-                -e DB_URL=${{ secrets.PROD_DB_URL }} \
-                -e DB_USERNAME=${{ secrets.PROD_DB_USERNAME }} \
-                -e DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }} \
+                -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+                -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+                -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
                 --name spark-container ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
