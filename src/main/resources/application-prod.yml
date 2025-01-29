@@ -27,3 +27,6 @@ springdoc:
     server-url: https://app-spark.shop/api
     oauth2-redirect-url: https://app-spark.shop/oauth/google
     enable: true
+logging:
+  level:
+    org.springframework.security: DEBUG

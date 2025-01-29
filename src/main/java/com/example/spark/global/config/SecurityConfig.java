@@ -31,6 +31,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:8080"); // Swagger UI 도메인 명시
         config.addAllowedOrigin("http://localhost:3000"); // 필요시 다른 출처 추가
+        config.addAllowedOrigin("https://app-spark.shop"); // 프로덕션 환경 추가
+        config.addAllowedOrigin("https://app-spark.shop/api"); // API 접속 URL
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
         config.setAllowedHeaders(List.of("*")); // 모든 요청 헤더 허용
         config.setExposedHeaders(List.of("Authorization")); // 노출할 응답 헤더
