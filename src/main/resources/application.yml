@@ -32,3 +32,12 @@ springdoc:
   swagger-ui:
     oauth2-redirect-url: http://localhost:8080/api/oauth/google
     enable: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+logging:
+  level:
+    org.springframework.security: DEBUG
