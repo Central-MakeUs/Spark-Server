@@ -1,24 +1,27 @@
 package com.example.spark.domain.youtube.service;
 
 import com.example.spark.domain.youtube.dto.*;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import com.example.spark.global.util.DateRange;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
-
-
 import java.util.List;
+import static com.example.spark.global.util.Util.calculateDateRanges;
+import static com.example.spark.global.util.Util.createHttpEntity;
+
 
 @Service
 public class YouTubeService {
 
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public YouTubeService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -111,7 +114,7 @@ public class YouTubeService {
     private List<YouTubeVideoDto> getVideoDetails(String accessToken, List<String> videoIds) {
         String videoApiUrl = "https://www.googleapis.com/youtube/v3/videos"
                 + "?part=snippet,statistics"
-                + "&fields=items(id,snippet(title,publishedAt),statistics(viewCount))"
+                + "&fields=items(id,snippet(title,publishedAt,thumbnails),statistics(viewCount))"
                 + "&id=" + String.join(",", videoIds);
 
         HttpHeaders headers = new HttpHeaders();
@@ -137,7 +140,8 @@ public class YouTubeService {
                         item.getId(),
                         new YouTubeVideoDto.Snippet(
                                 item.getSnippet().getTitle(),
-                                item.getSnippet().getPublishedAt()
+                                item.getSnippet().getPublishedAt(),
+                                item.getSnippet().getThumbnails()
                         ),
                         new YouTubeVideoDto.Statistics(
                                 item.getStatistics().getViewCount()
@@ -162,15 +166,55 @@ public class YouTubeService {
         return topVideos;
     }
 
-    public List<YouTubeChannelStatsDto> getChannelStats(String accessToken, String channelId) {
-        // 현재 날짜 기준으로 동적으로 날짜 범위 계산
+    private Map<String, LocalDate> getVideoUploadDates(List<String> videoIds, HttpEntity<String> entity) {
+        Map<String, LocalDate> videoUploadDates = new HashMap<>();
+
+        if (videoIds.isEmpty()) return videoUploadDates;
+
+        // ✅ YouTube API 요청 URL (여러 개의 비디오 ID를 쉼표로 구분하여 한 번에 조회)
+        String videoDetailsUrl = String.format(
+                "https://www.googleapis.com/youtube/v3/videos"
+                        + "?part=snippet"
+                        + "&id=%s",
+                String.join(",", videoIds) // ✅ 여러 개의 ID를 쉼표(,)로 연결하여 요청
+        );
+
+        ResponseEntity<String> videoResponse = restTemplate.exchange(
+                videoDetailsUrl,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        if (videoResponse.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("YouTube Videos API 요청 실패: " + videoResponse.getStatusCode());
+        }
+
+        try {
+            JsonNode videoJson = objectMapper.readTree(videoResponse.getBody());
+            JsonNode items = videoJson.get("items");
+
+            if (items != null) {
+                for (JsonNode item : items) {
+                    String videoId = item.get("id").asText();
+                    String publishedAt = item.get("snippet").get("publishedAt").asText();
+                    LocalDate videoDate = LocalDate.parse(publishedAt.substring(0, 10)); // 날짜 부분만 추출
+                    videoUploadDates.put(videoId, videoDate);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("비디오 업로드 날짜 조회 실패: " + e.getMessage());
+        }
+
+        return videoUploadDates;
+    }
+
+    public List<YouTubeCombinedStatsDto> getCombinedStats(String accessToken, String channelId) {
         List<DateRange> dateRanges = calculateDateRanges();
+        HttpEntity<String> entity = createHttpEntity(accessToken);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        List<YouTubeChannelStatsDto> allChannelStats = new ArrayList<>();
+        List<YouTubeCombinedStatsDto> combinedStatsList = new ArrayList<>();
+        Map<String, Integer> uploadStatsMap = getUploadStatsMap(accessToken, channelId, dateRanges);
 
         for (DateRange dateRange : dateRanges) {
             String analyticsApiUrl = String.format(
@@ -193,61 +237,96 @@ public class YouTubeService {
 
             YouTubeAnalyticsResponse analyticsResponse = response.getBody();
 
-            if (analyticsResponse == null || analyticsResponse.getRows() == null) {
+            if (analyticsResponse == null || analyticsResponse.getRows() == null || analyticsResponse.getRows().isEmpty()) {
                 throw new RuntimeException("YouTube Analytics API 응답이 비어 있습니다.");
             }
 
-            // 채널 통계 데이터를 변환하여 리스트에 추가
-            List<YouTubeChannelStatsDto> channelStats = analyticsResponse.getRows().stream()
-                    .map(row -> new YouTubeChannelStatsDto(
-                            dateRange.getStartDate(),
-                            dateRange.getEndDate(),
-                            Long.parseLong(row.get(2)), // views
-                            Long.parseLong(row.get(0)), // subscribersGained
-                            Long.parseLong(row.get(1)), // subscribersLost
-                            Long.parseLong(row.get(3)), // likes
-                            Long.parseLong(row.get(4)), // comments
-                            Long.parseLong(row.get(5)), // shares
-                            Double.parseDouble(row.get(6)), // estimatedRevenue
-                            Long.parseLong(row.get(7)) // averageViewDuration
-                    ))
-                    .toList();
+            // ✅ 업로드된 영상 개수 가져오기
+            int uploadedVideos = uploadStatsMap.getOrDefault(dateRange.getStartDate(), 0);
 
-            allChannelStats.addAll(channelStats);
+            // ✅ 3개 기간(30일, 60일, 90일)에 대한 데이터 추가
+            for (List<String> row : analyticsResponse.getRows()) {
+                combinedStatsList.add(new YouTubeCombinedStatsDto(
+                        dateRange.getStartDate(),
+                        dateRange.getEndDate(),
+                        Long.parseLong(row.get(2)), // views
+                        Long.parseLong(row.get(0)), // subscribersGained
+                        Long.parseLong(row.get(1)), // subscribersLost
+                        Long.parseLong(row.get(3)), // likes
+                        Long.parseLong(row.get(4)), // comments
+                        Long.parseLong(row.get(5)), // shares
+                        Double.parseDouble(row.get(6)), // estimatedRevenue
+                        Long.parseLong(row.get(7)), // averageViewDuration
+                        uploadedVideos // ✅ 업로드된 영상 개수 포함
+                ));
+            }
         }
 
-        return allChannelStats;
+        return combinedStatsList;
     }
 
-    // 날짜 범위 계산
-    private List<DateRange> calculateDateRanges() {
-        LocalDate today = LocalDate.now();
-        List<DateRange> dateRanges = new ArrayList<>();
 
-        dateRanges.add(new DateRange(today.minusDays(30).toString(), today.toString())); // 최근 30일
-        dateRanges.add(new DateRange(today.minusDays(60).toString(), today.minusDays(30).toString())); // 최근 30~60일
-        dateRanges.add(new DateRange(today.minusDays(90).toString(), today.minusDays(60).toString())); // 최근 60~90일
 
-        return dateRanges;
-    }
+    private Map<String, Integer> getUploadStatsMap(String accessToken, String channelId, List<DateRange> dateRanges) {
+        HttpEntity<String> entity = createHttpEntity(accessToken);
+        Map<String, Integer> uploadStatsMap = new HashMap<>();
 
-    // 날짜 범위를 저장할 내부 클래스
-    private static class DateRange {
-        private final String startDate;
-        private final String endDate;
+        // ✅ `publishedAfter`를 가장 오래된 startDate로 설정하여 정확한 데이터 조회
+        String publishedAfter = dateRanges.get(dateRanges.size() - 1).getStartDate();
 
-        public DateRange(String startDate, String endDate) {
-            this.startDate = startDate;
-            this.endDate = endDate;
+        String searchApiUrl = String.format(
+                "https://www.googleapis.com/youtube/v3/search"
+                        + "?part=id"
+                        + "&channelId=%s"
+                        + "&publishedAfter=%sT00:00:00Z"
+                        + "&type=video"
+                        + "&maxResults=50",
+                channelId,
+                publishedAfter
+        );
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                searchApiUrl,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("YouTube Data API 요청 실패: " + response.getStatusCode());
         }
 
-        public String getStartDate() {
-            return startDate;
+        List<String> videoIds = new ArrayList<>();
+        try {
+            JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+            JsonNode items = jsonResponse.get("items");
+
+            if (items != null) {
+                for (JsonNode item : items) {
+                    videoIds.add(item.get("id").get("videoId").asText());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 파싱 실패: " + e.getMessage());
         }
 
-        public String getEndDate() {
-            return endDate;
+        Map<String, LocalDate> videoUploadDates = getVideoUploadDates(videoIds, entity);
+
+        for (String videoId : videoUploadDates.keySet()) {
+            LocalDate videoDate = videoUploadDates.get(videoId);
+
+            for (DateRange dateRange : dateRanges) {
+                LocalDate startDateParsed = LocalDate.parse(dateRange.getStartDate());
+                LocalDate endDateParsed = LocalDate.parse(dateRange.getEndDate());
+
+                if ((videoDate.isEqual(startDateParsed) || videoDate.isAfter(startDateParsed)) &&
+                        videoDate.isBefore(endDateParsed.plusDays(1))) {
+                    uploadStatsMap.compute(dateRange.getStartDate(), (k, v) -> (v == null ? 1 : v + 1)); // ✅ 값 자동 증가
+                    break;
+                }
+            }
         }
+        return uploadStatsMap;
     }
 
 }

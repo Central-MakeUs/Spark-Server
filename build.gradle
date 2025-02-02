@@ -33,6 +33,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	implementation 'com.google.http-client:google-http-client-gson:1.40.1'
 	runtimeOnly 'com.mysql:mysql-connector-j'
