@@ -15,6 +15,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseCookie;
+import java.time.Duration;
 
 import java.util.Map;
 
@@ -82,7 +84,20 @@ public class OAuthController {
                     TOKEN_ENDPOINT, request, GoogleTokenResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                return ResponseEntity.ok(response.getBody());
+                GoogleTokenResponse tokenResponse = response.getBody();
+
+                // Access Token을 쿠키에 저장 (유효기간: 1시간)
+                ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", tokenResponse.getAccessToken())
+                        .httpOnly(true)
+                        .secure(true)
+                        .sameSite("Strict")
+                        .path("/")
+                        .maxAge(Duration.ofHours(1)) // 1시간
+                        .build();
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                        .body(tokenResponse);
             } else {
                 return ResponseEntity.status(response.getStatusCode())
                         .body(new GoogleTokenResponse("Error", "Failed to retrieve access token"));
