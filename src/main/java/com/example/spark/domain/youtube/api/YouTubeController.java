@@ -39,9 +39,8 @@ public class YouTubeController {
     )
     @GetMapping("/channel-profile")
     public SuccessResponse<YouTubeChannelProfileDto> getChannelProfile(
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+            @CookieValue(value = "access_token", required = false) String accessToken){
 
-        String accessToken = authorizationHeader.replace("Bearer ", "").trim();
         YouTubeChannelProfileDto profile = youTubeService.getChannelProfile(accessToken);
         return SuccessResponse.success(profile);
     }
@@ -64,11 +63,8 @@ public class YouTubeController {
      */
     @GetMapping("/top-videos")
     public SuccessResponse<List<YouTubeVideoDto>> getTopVideos(
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+            @CookieValue(value = "access_token", required = false) String accessToken,
             @RequestParam String channelId) {
-
-        // Access Token 추출
-        String accessToken = authorizationHeader.replace("Bearer ", "").trim();
 
         // 비디오 데이터 가져오기
         List<YouTubeVideoDto> topVideos = youTubeService.getTopVideos(accessToken, channelId);
@@ -93,14 +89,12 @@ public class YouTubeController {
      */
     @GetMapping("/channel-stats")
     public SuccessResponse<List<YouTubeCombinedStatsDto>> getCombinedYouTubeStats(
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+            @CookieValue(value = "access_token", required = false) String accessToken,
             @RequestParam String channelId) {
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Authorization 헤더가 올바르지 않습니다.");
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new RuntimeException("Access Token이 없습니다. 다시 로그인하세요.");
         }
-
-        String accessToken = authorizationHeader.replace("Bearer ", "").trim();
 
         // YouTube API 데이터 조회
         List<YouTubeCombinedStatsDto> combinedStats = youTubeService.getCombinedStats(accessToken, channelId);
