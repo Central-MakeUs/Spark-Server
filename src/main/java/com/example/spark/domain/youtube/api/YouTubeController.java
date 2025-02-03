@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "YouTube API", description = "YouTube Analytics 데이터를 관리하는 API")
 @RestController
@@ -88,7 +89,7 @@ public class YouTubeController {
      * 기간별 채널 통계 조회
      */
     @GetMapping("/channel-stats")
-    public SuccessResponse<List<YouTubeCombinedStatsDto>> getCombinedYouTubeStats(
+    public SuccessResponse<YouTubeAnalysisResultDto> getCombinedYouTubeStats(
             @CookieValue(value = "access_token", required = false) String accessToken,
             @RequestParam String channelId) {
 
@@ -96,13 +97,14 @@ public class YouTubeController {
             throw new RuntimeException("Access Token이 없습니다. 다시 로그인하세요.");
         }
 
-        // YouTube API 데이터 조회
-        List<YouTubeCombinedStatsDto> combinedStats = youTubeService.getCombinedStats(accessToken, channelId);
+        // YouTube API 데이터 조회 및 성장률 분석 포함
+        YouTubeAnalysisResultDto analysisResult = youTubeService.getCombinedStats(accessToken, channelId);
 
-        // 캐시에 저장 (List 타입 유지)
-        youTubeDataCache.saveData(channelId, combinedStats);
+        // 캐시에 저장 (YouTubeAnalysisResultDto)
+        youTubeDataCache.saveData(channelId, analysisResult);
 
-        // 리스트 그대로 반환
-        return SuccessResponse.success(combinedStats);
+        // YouTubeAnalysisResultDto 반환
+        return SuccessResponse.success(analysisResult);
     }
+
 }

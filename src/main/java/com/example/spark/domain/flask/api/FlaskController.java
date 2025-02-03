@@ -1,6 +1,7 @@
 package com.example.spark.domain.flask.api;
 
 import com.example.spark.domain.flask.dto.YouTubeDataCache;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import com.example.spark.domain.youtube.dto.YouTubeChannelStatsDto;
 import com.example.spark.domain.youtube.dto.YouTubeCombinedStatsDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,7 +48,7 @@ public class FlaskController {
             @RequestParam String userInfo
     ) {
         // 캐시에서 데이터 조회
-        List<YouTubeCombinedStatsDto> youtubeData = youTubeDataCache.getAndRemoveData(channelId);
+        YouTubeAnalysisResultDto youtubeData = youTubeDataCache.getAndRemoveData(channelId);
         if (youtubeData == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "No data found for channelId: " + channelId));
         }

@@ -209,7 +209,7 @@ public class YouTubeService {
         return videoUploadDates;
     }
 
-    public List<YouTubeCombinedStatsDto> getCombinedStats(String accessToken, String channelId) {
+    public YouTubeAnalysisResultDto getCombinedStats(String accessToken, String channelId) {
         List<DateRange> dateRanges = calculateDateRanges();
         HttpEntity<String> entity = createHttpEntity(accessToken);
 
@@ -241,12 +241,12 @@ public class YouTubeService {
                 throw new RuntimeException("YouTube Analytics API 응답이 비어 있습니다.");
             }
 
-            // ✅ 업로드된 영상 개수 가져오기
+            // 업로드된 영상 개수 가져오기
             int uploadedVideos = uploadStatsMap.getOrDefault(dateRange.getStartDate(), 0);
 
-            // ✅ 3개 기간(30일, 60일, 90일)에 대한 데이터 추가
+            // 3개 기간(30일, 60일, 90일)에 대한 데이터 추가
             for (List<String> row : analyticsResponse.getRows()) {
-                combinedStatsList.add(new YouTubeCombinedStatsDto(
+                combinedStatsList.add(YouTubeCombinedStatsDto.of(
                         dateRange.getStartDate(),
                         dateRange.getEndDate(),
                         Long.parseLong(row.get(2)), // views
@@ -257,12 +257,71 @@ public class YouTubeService {
                         Long.parseLong(row.get(5)), // shares
                         Double.parseDouble(row.get(6)), // estimatedRevenue
                         Long.parseLong(row.get(7)), // averageViewDuration
-                        uploadedVideos // ✅ 업로드된 영상 개수 포함
+                        uploadedVideos // 업로드된 영상 개수
                 ));
             }
         }
 
-        return combinedStatsList;
+        // 성장률 분석 추가
+        Map<String, Object> analysisResult = calculateGrowthAndRank(combinedStatsList);
+
+        // YouTubeAnalysisResultDto로 변환하여 반환
+        return new YouTubeAnalysisResultDto(
+                combinedStatsList, // 기존 통계 데이터
+                (Map<String, Double>) analysisResult.get("growthRates"), // 성장률 분석 데이터
+                (List<String>) analysisResult.get("strengths"), // 강점
+                (List<String>) analysisResult.get("weaknesses") // 약점
+        );
+    }
+
+
+    //성장률 계산 및 강/약점 분석 메서드
+    private Map<String, Object> calculateGrowthAndRank(List<YouTubeCombinedStatsDto> statsList) {
+        if (statsList.size() < 2) {
+            throw new RuntimeException("성장률을 계산하기 위해서는 최소 두 개의 기간 데이터가 필요합니다.");
+        }
+
+        // 최근 30일 데이터 (기간 마지막 값)
+        YouTubeCombinedStatsDto recentStats = statsList.get(0);
+        // 30~60일 데이터 (기간 첫 값)
+        YouTubeCombinedStatsDto previousStats = statsList.get(1);
+
+        Map<String, Double> growthRates = new HashMap<>();
+
+        // 성장률 계산 공식: (기간 마지막 값 - 기간 첫 값) / 기간 첫 값 * 100
+        growthRates.put("views", calculateGrowth(recentStats.getViews(), previousStats.getViews()));
+        growthRates.put("netSubscribers", calculateGrowth(recentStats.getNetSubscribers(), previousStats.getNetSubscribers()));
+        growthRates.put("likes", calculateGrowth(recentStats.getLikes(), previousStats.getLikes()));
+        growthRates.put("comments", calculateGrowth(recentStats.getComments(), previousStats.getComments()));
+        growthRates.put("shares", calculateGrowth(recentStats.getShares(), previousStats.getShares()));
+        growthRates.put("estimatedRevenue", calculateGrowth(recentStats.getEstimatedRevenue(), previousStats.getEstimatedRevenue()));
+        growthRates.put("averageViewDuration", calculateGrowth(recentStats.getAverageViewDuration(), previousStats.getAverageViewDuration()));
+        growthRates.put("uploadedVideos", calculateGrowth(recentStats.getUploadedVideos(), previousStats.getUploadedVideos()));
+
+        // 강점/약점 분석
+        List<Map.Entry<String, Double>> sortedMetrics = growthRates.entrySet()
+                .stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue())) // 내림차순 정렬
+                .toList();
+
+        List<String> strengths = List.of(sortedMetrics.get(0).getKey(), sortedMetrics.get(1).getKey()); // 성장률 상위 2개
+        List<String> weaknesses = List.of(sortedMetrics.get(sortedMetrics.size() - 1).getKey(), sortedMetrics.get(sortedMetrics.size() - 2).getKey()); // 성장률 하위 2개
+
+        // 결과 반환
+        Map<String, Object> analysisResult = new HashMap<>();
+        analysisResult.put("growthRates", growthRates);
+        analysisResult.put("strengths", strengths);
+        analysisResult.put("weaknesses", weaknesses);
+
+        return analysisResult;
+    }
+
+    // 성장률 계산 함수
+    private double calculateGrowth(double recent, double previous) {
+        if (previous == 0) {
+            return recent == 0 ? 0 : 100.0; // 이전 값도 0이면 0%, 아니면 100%
+        }
+        return ((recent - previous) / previous) * 100;
     }
 
 
