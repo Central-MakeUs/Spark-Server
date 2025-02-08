@@ -25,7 +25,7 @@ server:
 springdoc:
   swagger-ui:
     server-url: https://app-spark.shop/api
-    oauth2-redirect-url: https://app-spark.shop/oauth/google
+    oauth2-redirect-url: https://spark-front-omega.vercel.app/oauth/callback
     enable: true
 logging:
   level:
@@ -35,3 +35,8 @@ management:
     web:
       exposure:
         include: "*"
+pinecone:
+  api-key: pcsk_5k5cM2_9cT9uRTaHQhNsXYCPkNFFRXkVSPMcQjR3vKLrGgasF1VTETgUvBcMb3AdsVMJWt
+  environment: us-east-1
+  index-name: spark
+  dimension: 1536
