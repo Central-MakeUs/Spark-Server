@@ -49,6 +49,7 @@ public class SecurityConfig {
         config.addAllowedOrigin("https://app-spark.shop/api"); // API 접속 URL
         config.addAllowedOrigin("https://spark.ngrok.pro");
         config.addAllowedOrigin("http://221.147.110.182:5000");
+        config.addAllowedOrigin("https://spark-front-omega.vercel.app");
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
         config.setAllowedHeaders(List.of("*")); // 모든 요청 헤더 허용
         config.setExposedHeaders(List.of("Authorization")); // 노출할 응답 헤더

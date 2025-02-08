@@ -30,7 +30,7 @@ server:
 
 springdoc:
   swagger-ui:
-    oauth2-redirect-url: http://localhost:8080/api/oauth/google
+    oauth2-redirect-url: https://spark-front-omega.vercel.app/oauth/callback
     enable: true
 
 management:
@@ -41,3 +41,8 @@ management:
 logging:
   level:
     org.springframework.security: DEBUG
+pinecone:
+  api-key: ${PINECONE_API_KEY}
+  environment: us-east-1
+  index-name: spark
+  dimension: 1536
