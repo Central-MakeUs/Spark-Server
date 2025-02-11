@@ -20,12 +20,12 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
 server:
   servlet:
-    context-path: /api
+    context-path: /
 
 springdoc:
   swagger-ui:
     server-url: https://app-spark.shop/api
-    oauth2-redirect-url: https://spark-front-omega.vercel.app/oauth/callback
+    oauth2-redirect-url: https://app-spark.shop/oauth/google
     enable: true
 logging:
   level:

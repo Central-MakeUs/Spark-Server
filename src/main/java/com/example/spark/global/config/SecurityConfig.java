@@ -46,8 +46,8 @@ public class SecurityConfig {
         config.addAllowedOrigin("http://localhost:8080"); // Swagger UI 도메인 명시
         config.addAllowedOrigin("http://localhost:3000"); // 필요시 다른 출처 추가
         config.addAllowedOrigin("https://app-spark.shop"); // 프로덕션 환경 추가
-        config.addAllowedOrigin("https://app-spark.shop/api"); // API 접속 URL
-        config.addAllowedOrigin("https://spark.ngrok.pro");
+        config.addAllowedOrigin("https://api.app-spark.shop"); // API 접속 URL
+        config.addAllowedOrigin("https://www.app-spark.shop");
         config.addAllowedOrigin("http://221.147.110.182:5000");
         config.addAllowedOrigin("https://spark-front-omega.vercel.app");
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드

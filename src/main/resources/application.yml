@@ -26,11 +26,11 @@ oauth:
 
 server:
   servlet:
-    context-path: /api
+    context-path: /
 
 springdoc:
   swagger-ui:
-    oauth2-redirect-url: https://spark-front-omega.vercel.app/oauth/callback
+    oauth2-redirect-url: https://app-spark.shop/oauth/google
     enable: true
 
 management:

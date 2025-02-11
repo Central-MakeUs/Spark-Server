@@ -27,8 +27,8 @@ public class OpenApiConfig {
                         .version("1.0")
                         .description("Spark API 문서"))
                 .servers(List.of(
-                        new Server().url("https://app-spark.shop/api").description("Production Server"),
-                        new Server().url("http://localhost:8080/api").description("Local Server")
+                        new Server().url("https://api.app-spark.shop").description("Production Server"),
+                        new Server().url("http://localhost:8080").description("Local Server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("BearerAuth")) // 모든 요청에 인증 추가
                 .components(new io.swagger.v3.oas.models.Components().addSecuritySchemes("BearerAuth", bearerScheme));

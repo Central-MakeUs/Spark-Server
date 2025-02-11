@@ -90,7 +90,7 @@ public class OAuthController {
                 ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", tokenResponse.getAccessToken())
                         .httpOnly(true)
                         .secure(true)
-                        .sameSite("Strict")
+                        .sameSite("None")
                         .path("/")
                         .maxAge(Duration.ofHours(1)) // 1시간
                         .build();
