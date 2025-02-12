@@ -40,11 +40,19 @@ public class YouTubeController {
     )
     @GetMapping("/channel-profile")
     public SuccessResponse<YouTubeChannelProfileDto> getChannelProfile(
-            @CookieValue(value = "access_token", required = false) String accessToken){
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
+        }
+
+        // "Bearer " 제거 후 액세스 토큰만 추출
+        String accessToken = authorizationHeader.substring(7);
 
         YouTubeChannelProfileDto profile = youTubeService.getChannelProfile(accessToken);
         return SuccessResponse.success(profile);
     }
+
 
     @Operation(
             summary = "조회수 상위 영상 조회",

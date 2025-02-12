@@ -30,6 +30,9 @@ public class YouTubeService {
      * 채널 프로필 정보를 가져오는 메서드
      */
     public YouTubeChannelProfileDto getChannelProfile(String accessToken) {
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
+        }
         String channelApiUrl = "https://www.googleapis.com/youtube/v3/channels"
                 + "?part=snippet,statistics"
                 + "&mine=true";
