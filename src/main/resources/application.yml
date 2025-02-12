@@ -30,7 +30,7 @@ server:
 
 springdoc:
   swagger-ui:
-    oauth2-redirect-url: https://app-spark.shop/oauth/google
+    oauth2-redirect-url: http://localhost:8080/oauth/google
     enable: true
 
 management:
