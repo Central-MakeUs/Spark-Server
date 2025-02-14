@@ -90,18 +90,7 @@ public class OAuthController {
             if (response.getStatusCode().is2xxSuccessful()) {
                 GoogleTokenResponse tokenResponse = response.getBody();
 
-                // Access Token을 쿠키에 저장 (유효기간: 1시간)
-                ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", tokenResponse.getAccessToken())
-                        .httpOnly(true)
-                        .secure(true)
-                        .sameSite("None")
-                        .path("/")
-                        .maxAge(Duration.ofHours(1)) // 1시간
-                        .build();
-
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                        .body(tokenResponse);
+                return ResponseEntity.ok().body(tokenResponse);
             } else {
                 return ResponseEntity.status(response.getStatusCode())
                         .body(new GoogleTokenResponse("Error", "Failed to retrieve access token"));

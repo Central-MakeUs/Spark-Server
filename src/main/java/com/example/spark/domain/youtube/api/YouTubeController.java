@@ -72,8 +72,15 @@ public class YouTubeController {
      */
     @GetMapping("/top-videos")
     public SuccessResponse<List<YouTubeVideoDto>> getTopVideos(
-            @CookieValue(value = "access_token", required = false) String accessToken,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam String channelId) {
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
+        }
+
+        // "Bearer " 제거 후 액세스 토큰만 추출
+        String accessToken = authorizationHeader.substring(7);
 
         // 비디오 데이터 가져오기
         List<YouTubeVideoDto> topVideos = youTubeService.getTopVideos(accessToken, channelId);
@@ -98,12 +105,15 @@ public class YouTubeController {
      */
     @GetMapping("/channel-stats")
     public SuccessResponse<YouTubeAnalysisResultDto> getCombinedYouTubeStats(
-            @CookieValue(value = "access_token", required = false) String accessToken,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam String channelId) {
 
-        if (accessToken == null || accessToken.isEmpty()) {
-            throw new RuntimeException("Access Token이 없습니다. 다시 로그인하세요.");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
         }
+
+        // "Bearer " 제거 후 액세스 토큰만 추출
+        String accessToken = authorizationHeader.substring(7);
 
         // YouTube API 데이터 조회 및 성장률 분석 포함
         YouTubeAnalysisResultDto analysisResult = youTubeService.getCombinedStats(accessToken, channelId);
