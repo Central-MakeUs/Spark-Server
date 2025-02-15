@@ -219,14 +219,23 @@ public class YouTubeService {
         List<YouTubeCombinedStatsDto> combinedStatsList = new ArrayList<>();
         Map<String, Integer> uploadStatsMap = getUploadStatsMap(accessToken, channelId, dateRanges);
 
+        // 채널이 수익 창출이 되는지 확인
+        boolean isMonetized = checkIfChannelIsMonetized(accessToken, channelId);
+
         for (DateRange dateRange : dateRanges) {
+            String metrics = "subscribersGained,subscribersLost,views,likes,comments,shares,averageViewDuration";
+            if (isMonetized) {
+                metrics += ",estimatedRevenue";  // 수익 창출 계정일 경우에만 포함
+            }
+
             String analyticsApiUrl = String.format(
                     "https://youtubeanalytics.googleapis.com/v2/reports"
                             + "?ids=channel==%s"
-                            + "&metrics=subscribersGained,subscribersLost,views,likes,comments,shares,estimatedRevenue,averageViewDuration"
+                            + "&metrics=%s"
                             + "&startDate=%s"
                             + "&endDate=%s",
                     channelId,
+                    metrics,
                     dateRange.getStartDate(),
                     dateRange.getEndDate()
             );
@@ -241,13 +250,12 @@ public class YouTubeService {
             YouTubeAnalyticsResponse analyticsResponse = response.getBody();
 
             if (analyticsResponse == null || analyticsResponse.getRows() == null || analyticsResponse.getRows().isEmpty()) {
-                throw new RuntimeException("YouTube Analytics API 응답이 비어 있습니다.");
+                System.out.println("YouTube Analytics API 응답이 비어 있습니다.");
+                continue;
             }
 
-            // 업로드된 영상 개수 가져오기
             int uploadedVideos = uploadStatsMap.getOrDefault(dateRange.getStartDate(), 0);
 
-            // 3개 기간(30일, 60일, 90일)에 대한 데이터 추가
             for (List<String> row : analyticsResponse.getRows()) {
                 combinedStatsList.add(YouTubeCombinedStatsDto.of(
                         dateRange.getStartDate(),
@@ -258,23 +266,53 @@ public class YouTubeService {
                         Long.parseLong(row.get(3)), // likes
                         Long.parseLong(row.get(4)), // comments
                         Long.parseLong(row.get(5)), // shares
-                        Double.parseDouble(row.get(6)), // estimatedRevenue
-                        Long.parseLong(row.get(7)), // averageViewDuration
-                        uploadedVideos // 업로드된 영상 개수
+                        isMonetized && row.size() > 6 ? Double.parseDouble(row.get(6)) : 0.0,  // 🔥 수익 창출 계정이 아니면 기본값 0.0
+                        Long.parseLong(row.get(isMonetized ? 7 : 6)), // averageViewDuration
+                        uploadedVideos
                 ));
             }
         }
 
-        // 성장률 분석 추가
         Map<String, Object> analysisResult = calculateGrowthAndRank(combinedStatsList);
 
-        // YouTubeAnalysisResultDto로 변환하여 반환
         return new YouTubeAnalysisResultDto(
                 combinedStatsList, // 기존 통계 데이터
                 (Map<String, Double>) analysisResult.get("growthRates"), // 성장률 분석 데이터
                 (List<String>) analysisResult.get("strengths"), // 강점
                 (List<String>) analysisResult.get("weaknesses") // 약점
         );
+    }
+
+    // 채널이 수익 창출이 되는지 확인하는 메서드
+    public boolean checkIfChannelIsMonetized(String accessToken, String channelId) {
+        String url = "https://www.googleapis.com/youtube/v3/channels?"
+                + "part=monetizationDetails"
+                + "&id=" + channelId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> body = response.getBody();
+
+            if (body == null || !body.containsKey("items")) {
+                return false;
+            }
+
+            List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
+            if (items.isEmpty()) {
+                return false;
+            }
+
+            Map<String, Object> monetizationDetails = (Map<String, Object>) items.get(0).get("monetizationDetails");
+            return monetizationDetails != null && "monetized".equals(monetizationDetails.get("monetizationStatus"));
+
+        } catch (Exception e) {
+            System.out.println("⚠️ 채널 수익 창출 상태를 확인할 수 없습니다.");
+            return false;
+        }
     }
 
 
