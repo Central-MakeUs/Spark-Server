@@ -41,8 +41,16 @@ management:
 logging:
   level:
     org.springframework.security: DEBUG
+    io:
+      pinecone: DEBUG
+    com:
+      google:
+        protobuf: DEBUG
+openai:
+  api-key: ${OPENAI_API_KEY}
+
 pinecone:
   api-key: ${PINECONE_API_KEY}
-  environment: us-east-1
-  index-name: spark
-  dimension: 1536
+  host: ${PINECONE_HOST}
+  index-name: ${PINECONE_INDEX_NAME}
+
