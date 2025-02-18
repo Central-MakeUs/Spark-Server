@@ -59,13 +59,19 @@ public class YouTubeService {
         // 첫 번째 채널 데이터 가져오기
         YouTubeChannelProfileResponse.Item channelData = channelResponse.getItems().get(0);
 
-        // DTO로 변환하여 반환
+        String profileThumbnailUrl = null;
+        if (channelData.getSnippet().getThumbnails() != null &&
+                channelData.getSnippet().getThumbnails().getDefaultThumbnail() != null) {
+            profileThumbnailUrl = channelData.getSnippet().getThumbnails().getDefaultThumbnail().getUrl();
+        }
+
         return new YouTubeChannelProfileDto(
                 channelData.getId(),
                 channelData.getSnippet().getTitle(),
                 channelData.getStatistics().getVideoCount(),
                 channelData.getStatistics().getSubscriberCount(),
-                channelData.getStatistics().getViewCount()
+                channelData.getStatistics().getViewCount(),
+                profileThumbnailUrl
         );
     }
     /**
