@@ -13,8 +13,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.ResponseCookie;
-import java.time.Duration;
 
 import java.util.Map;
 
