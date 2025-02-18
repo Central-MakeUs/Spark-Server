@@ -1,4 +1,4 @@
-package com.example.spark.domain.youtube.dto;
+package com.example.spark.global.oauth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
