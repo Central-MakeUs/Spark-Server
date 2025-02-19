@@ -1,6 +1,7 @@
-package com.example.spark.domain.strategy.DTO;
+package com.example.spark.global.cache;
 
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
