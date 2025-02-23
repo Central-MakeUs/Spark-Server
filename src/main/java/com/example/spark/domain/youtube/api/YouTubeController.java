@@ -1,16 +1,19 @@
 package com.example.spark.domain.youtube.api;
 
 import com.example.spark.domain.flask.dto.YouTubeDataCache;
-import com.example.spark.domain.youtube.dto.*;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.youtube.dto.YouTubeChannelProfileDto;
+import com.example.spark.domain.youtube.dto.YouTubeVideoDto;
 import com.example.spark.domain.youtube.service.YouTubeService;
+import com.example.spark.global.error.ErrorCode;
 import com.example.spark.global.response.SuccessResponse;
+import com.example.spark.global.error.CustomException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Tag(name = "YouTube API", description = "YouTube Analytics 데이터를 관리하는 API")
 @RestController
@@ -43,7 +46,7 @@ public class YouTubeController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
+            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
         }
 
         // "Bearer " 제거 후 액세스 토큰만 추출
@@ -76,7 +79,7 @@ public class YouTubeController {
             @RequestParam String channelId) {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
+            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
         }
 
         // "Bearer " 제거 후 액세스 토큰만 추출
@@ -109,20 +112,27 @@ public class YouTubeController {
             @RequestParam String channelId) {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Access token이 존재하지 않습니다.");
+            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
         }
 
         // "Bearer " 제거 후 액세스 토큰만 추출
         String accessToken = authorizationHeader.substring(7);
 
-        // YouTube API 데이터 조회 및 성장률 분석 포함
-        YouTubeAnalysisResultDto analysisResult = youTubeService.getCombinedStats(accessToken, channelId);
+        try {
+            // YouTube API 데이터 조회 및 성장률 분석 포함
+            YouTubeAnalysisResultDto analysisResult = youTubeService.getCombinedStats(accessToken, channelId);
 
-        // 캐시에 저장 (YouTubeAnalysisResultDto)
-        youTubeDataCache.saveData(channelId, analysisResult);
+            // 캐시에 저장 (YouTubeAnalysisResultDto)
+            youTubeDataCache.saveData(channelId, analysisResult);
 
-        // YouTubeAnalysisResultDto 반환
-        return SuccessResponse.success(analysisResult);
+            // YouTubeAnalysisResultDto 반환
+            return SuccessResponse.success(analysisResult);
+
+        } catch (Exception ex) {
+            if (ex.getMessage().contains("invalid_token") || ex.getMessage().contains("Unauthorized")) {
+                throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+            }
+            throw new CustomException(ErrorCode.UNEXPECTED_ERROR);
+        }
     }
-
 }

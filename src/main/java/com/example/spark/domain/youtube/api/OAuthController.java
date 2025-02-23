@@ -1,18 +1,23 @@
 package com.example.spark.domain.youtube.api;
 
+import com.example.spark.global.error.ErrorCode;
 import com.example.spark.global.oauth.GoogleAuthRequest;
 import com.example.spark.global.oauth.GoogleTokenRefreshRequest;
 import com.example.spark.global.response.GoogleTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -59,15 +64,13 @@ public class OAuthController {
     @Operation(summary = "Authorization Code로 Access Token 교환", description = "Google의 Authorization Code를 사용하여 Access Token을 발급받습니다.")
     @PostMapping("/oauth/google/callback")
     public ResponseEntity<GoogleTokenResponse> exchangeCodeForToken(@RequestBody GoogleAuthRequest request) {
-        String code = request.getCode();
-
-        if (code == null || code.isEmpty()) {
-            return ResponseEntity.badRequest().body(new GoogleTokenResponse("Error", "Authorization code is missing"));
+        if (request.getCode() == null || request.getCode().isEmpty()) {
+            return ResponseEntity.badRequest().body(new GoogleTokenResponse(ErrorCode.INVALID_AUTHORIZATION_CODE));
         }
 
         // 요청 파라미터 생성 (Body 포함)
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("code", code);
+        params.add("code", request.getCode());
         params.add("client_id", CLIENT_ID);
         params.add("client_secret", CLIENT_SECRET);
         params.add("redirect_uri", REDIRECT_URI);
@@ -86,17 +89,18 @@ public class OAuthController {
             ResponseEntity<GoogleTokenResponse> response = restTemplate.postForEntity(
                     TOKEN_ENDPOINT, requestEntity, GoogleTokenResponse.class);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                GoogleTokenResponse tokenResponse = response.getBody();
+            return response.getStatusCode().is2xxSuccessful()
+                    ? ResponseEntity.ok(response.getBody())
+                    : ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new GoogleTokenResponse(ErrorCode.ACCESS_TOKEN_EXPIRED));
 
-                return ResponseEntity.ok().body(tokenResponse);
-            } else {
-                return ResponseEntity.status(response.getStatusCode())
-                        .body(new GoogleTokenResponse("Error", "Failed to retrieve access token"));
-            }
         } catch (Exception ex) {
-            return ResponseEntity.internalServerError()
-                    .body(new GoogleTokenResponse("Error", "Unexpected error occurred: " + ex.getMessage()));
+            ErrorCode errorCode = ex.getMessage().contains("invalid_grant")
+                    ? ErrorCode.INVALID_AUTHORIZATION_CODE
+                    : ErrorCode.UNEXPECTED_ERROR;
+
+            return ResponseEntity.status(errorCode.getStatus())
+                    .body(new GoogleTokenResponse(errorCode));
         }
     }
 
@@ -106,7 +110,8 @@ public class OAuthController {
         String refreshToken = request.getRefreshToken();
 
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.badRequest().body(new GoogleTokenResponse("Error", "Refresh token is missing"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new GoogleTokenResponse(ErrorCode.REFRESH_TOKEN_EXPIRED));
         }
 
         // 요청 파라미터 생성
@@ -129,16 +134,18 @@ public class OAuthController {
             ResponseEntity<GoogleTokenResponse> response = restTemplate.postForEntity(
                     TOKEN_ENDPOINT, requestEntity, GoogleTokenResponse.class);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                GoogleTokenResponse tokenResponse = response.getBody();
-                return ResponseEntity.ok().body(tokenResponse);
-            } else {
-                return ResponseEntity.status(response.getStatusCode())
-                        .body(new GoogleTokenResponse("Error", "Failed to refresh access token"));
-            }
+            return response.getStatusCode().is2xxSuccessful()
+                    ? ResponseEntity.ok(response.getBody())
+                    : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new GoogleTokenResponse(ErrorCode.INTERNAL_SERVER_ERROR));
+
         } catch (Exception ex) {
-            return ResponseEntity.internalServerError()
-                    .body(new GoogleTokenResponse("Error", "Unexpected error occurred: " + ex.getMessage()));
+            ErrorCode errorCode = ex.getMessage().contains("invalid_grant") ?
+                    ErrorCode.REFRESH_TOKEN_EXPIRED :  // Refresh Token이 만료된 경우
+                    ErrorCode.INTERNAL_SERVER_ERROR;   // 기타 예상치 못한 오류는 INTERNAL_SERVER_ERROR 반환
+
+            return ResponseEntity.status(errorCode.getStatus())
+                    .body(new GoogleTokenResponse(errorCode));
         }
     }
 }
