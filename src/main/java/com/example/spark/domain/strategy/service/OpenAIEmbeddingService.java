@@ -63,7 +63,7 @@ public class OpenAIEmbeddingService {
             if (response == null || response.getData().isEmpty()) {
                 throw new RuntimeException("🚨 OpenAI 응답이 비어 있습니다.");
             }
-
+            //System.out.println("UserInput embedding: " + response.getData().get(0).getEmbedding());
             return response.getData().get(0).getEmbedding();
         } catch (Exception e) {
             System.err.println("🚨 OpenAI Embedding 요청 실패: " + e.getMessage());

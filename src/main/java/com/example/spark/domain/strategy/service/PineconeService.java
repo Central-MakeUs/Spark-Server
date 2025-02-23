@@ -45,7 +45,7 @@ public class PineconeService {
                     3, userEmbedding, null, null, null, "default",
                     filter, false, true
             );
-
+            //System.out.println("🔍 Pinecone 검색 결과: " + queryResponse.getMatchesList());
             return queryResponse.getMatchesList().stream()
                     .map(match -> match.getMetadata().getFieldsMap().get("content").getStringValue())
                     .collect(Collectors.toList());

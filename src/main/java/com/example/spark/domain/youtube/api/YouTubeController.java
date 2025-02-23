@@ -132,7 +132,7 @@ public class YouTubeController {
             if (ex.getMessage().contains("invalid_token") || ex.getMessage().contains("Unauthorized")) {
                 throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
             }
-            throw new CustomException(ErrorCode.UNEXPECTED_ERROR);
+            throw new CustomException(ErrorCode.UNEXPECTED_ERROR, ex);
         }
     }
 }
