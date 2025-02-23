@@ -1,16 +1,21 @@
 package com.example.spark.domain.youtube.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.util.List;
 
+@Data
+@AllArgsConstructor
 public class YouTubeAnalyticsResponse {
+
+    private List<ColumnHeader> columnHeaders;
     private List<List<String>> rows;
 
-    public List<List<String>> getRows() {
-        return rows;
-    }
-
-    public void setRows(List<List<String>> rows) {
-        this.rows = rows;
+    @Data
+    public static class ColumnHeader {
+        private String name;
+        private String columnType;
+        private String dataType;
     }
 }
-

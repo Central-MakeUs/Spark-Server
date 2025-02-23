@@ -1,18 +1,21 @@
 package com.example.spark.domain.youtube.service;
 
 import com.example.spark.domain.youtube.dto.*;
+import com.example.spark.global.util.DateRange;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import com.example.spark.global.util.DateRange;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static com.example.spark.global.util.Util.calculateDateRanges;
 import static com.example.spark.global.util.Util.createHttpEntity;
 
@@ -225,59 +228,109 @@ public class YouTubeService {
         List<YouTubeCombinedStatsDto> combinedStatsList = new ArrayList<>();
         Map<String, Integer> uploadStatsMap = getUploadStatsMap(accessToken, channelId, dateRanges);
 
-        // 채널이 수익 창출이 되는지 확인
-        boolean isMonetized = checkIfChannelIsMonetized(accessToken, channelId);
-
         for (DateRange dateRange : dateRanges) {
-            String metrics = "subscribersGained,subscribersLost,views,likes,comments,shares,averageViewDuration";
-            if (isMonetized) {
-                metrics += ",estimatedRevenue";  // 수익 창출 계정일 경우에만 포함
-            }
 
-            String analyticsApiUrl = String.format(
+            // Step 1: 필수 지표만 우선 호출 (Revenue 제외)
+            String basicMetrics = "subscribersGained,subscribersLost,views,likes,comments,shares,averageViewDuration";
+
+            String basicAnalyticsUrl = String.format(
                     "https://youtubeanalytics.googleapis.com/v2/reports"
                             + "?ids=channel==%s"
                             + "&metrics=%s"
                             + "&startDate=%s"
                             + "&endDate=%s",
                     channelId,
-                    metrics,
+                    basicMetrics,
                     dateRange.getStartDate(),
                     dateRange.getEndDate()
             );
 
-            ResponseEntity<YouTubeAnalyticsResponse> response = restTemplate.exchange(
-                    analyticsApiUrl,
+            ResponseEntity<YouTubeAnalyticsResponse> basicResponse = restTemplate.exchange(
+                    basicAnalyticsUrl,
                     HttpMethod.GET,
                     entity,
                     YouTubeAnalyticsResponse.class
             );
 
-            YouTubeAnalyticsResponse analyticsResponse = response.getBody();
+            YouTubeAnalyticsResponse basicAnalytics = basicResponse.getBody();
 
-            if (analyticsResponse == null || analyticsResponse.getRows() == null || analyticsResponse.getRows().isEmpty()) {
+            if (basicAnalytics == null || basicAnalytics.getRows() == null || basicAnalytics.getRows().isEmpty()) {
                 System.out.println("YouTube Analytics API 응답이 비어 있습니다.");
                 continue;
             }
 
+            List<String> headerNames = basicAnalytics.getColumnHeaders()
+                    .stream()
+                    .map(YouTubeAnalyticsResponse.ColumnHeader::getName)
+                    .collect(Collectors.toList());
+
+            int subscribersGainedIdx = headerNames.indexOf("subscribersGained");
+            int subscribersLostIdx = headerNames.indexOf("subscribersLost");
+            int viewsIdx = headerNames.indexOf("views");
+            int likesIdx = headerNames.indexOf("likes");
+            int commentsIdx = headerNames.indexOf("comments");
+            int sharesIdx = headerNames.indexOf("shares");
+            int averageViewDurationIdx = headerNames.indexOf("averageViewDuration");
+
             int uploadedVideos = uploadStatsMap.getOrDefault(dateRange.getStartDate(), 0);
 
-            for (List<String> row : analyticsResponse.getRows()) {
+            // Step 2: 수익 지표만 별도 호출 (Revenue 전용 호출)
+            double estimatedRevenue = 0.0; // 기본값
+            String revenueAnalyticsUrl = String.format(
+                    "https://youtubeanalytics.googleapis.com/v2/reports"
+                            + "?ids=channel==%s"
+                            + "&metrics=estimatedRevenue"
+                            + "&startDate=%s"
+                            + "&endDate=%s",
+                    channelId,
+                    dateRange.getStartDate(),
+                    dateRange.getEndDate()
+            );
+
+            try {
+                ResponseEntity<YouTubeAnalyticsResponse> revenueResponse = restTemplate.exchange(
+                        revenueAnalyticsUrl,
+                        HttpMethod.GET,
+                        entity,
+                        YouTubeAnalyticsResponse.class
+                );
+
+                YouTubeAnalyticsResponse revenueAnalytics = revenueResponse.getBody();
+
+                if (revenueAnalytics != null
+                        && revenueAnalytics.getRows() != null
+                        && !revenueAnalytics.getRows().isEmpty()
+                        && !revenueAnalytics.getRows().get(0).isEmpty()) {
+
+                    estimatedRevenue = Double.parseDouble(revenueAnalytics.getRows().get(0).get(0));
+                }
+
+            } catch (HttpClientErrorException e) {
+                if (e.getStatusCode() == HttpStatus.FORBIDDEN || e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                    estimatedRevenue = 0.0; // 🔥 Revenue 권한 없을 시 기본값 0.0 처리
+                } else {
+                    throw e; // 다른 오류는 던지기
+                }
+            }
+
+            // 결과 데이터 DTO 생성
+            for (List<String> row : basicAnalytics.getRows()) {
                 combinedStatsList.add(YouTubeCombinedStatsDto.of(
                         dateRange.getStartDate(),
                         dateRange.getEndDate(),
-                        Long.parseLong(row.get(2)), // views
-                        Long.parseLong(row.get(0)), // subscribersGained
-                        Long.parseLong(row.get(1)), // subscribersLost
-                        Long.parseLong(row.get(3)), // likes
-                        Long.parseLong(row.get(4)), // comments
-                        Long.parseLong(row.get(5)), // shares
-                        isMonetized && row.size() > 6 ? Double.parseDouble(row.get(6)) : 0.0,  // 🔥 수익 창출 계정이 아니면 기본값 0.0
-                        Long.parseLong(row.get(isMonetized ? 7 : 6)), // averageViewDuration
+                        Long.parseLong(row.get(viewsIdx)),
+                        Long.parseLong(row.get(subscribersGainedIdx)),
+                        Long.parseLong(row.get(subscribersLostIdx)),
+                        Long.parseLong(row.get(likesIdx)),
+                        Long.parseLong(row.get(commentsIdx)),
+                        Long.parseLong(row.get(sharesIdx)),
+                        estimatedRevenue, // 별도 호출로 안전하게 얻음
+                        Long.parseLong(row.get(averageViewDurationIdx)),
                         uploadedVideos
                 ));
             }
         }
+
 
         Map<String, Object> analysisResult = calculateGrowthAndRank(combinedStatsList);
 
@@ -288,39 +341,6 @@ public class YouTubeService {
                 (List<String>) analysisResult.get("weaknesses") // 약점
         );
     }
-
-    // 채널이 수익 창출이 되는지 확인하는 메서드
-    public boolean checkIfChannelIsMonetized(String accessToken, String channelId) {
-        String url = "https://www.googleapis.com/youtube/v3/channels?"
-                + "part=monetizationDetails"
-                + "&id=" + channelId;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-            Map<String, Object> body = response.getBody();
-
-            if (body == null || !body.containsKey("items")) {
-                return false;
-            }
-
-            List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
-            if (items.isEmpty()) {
-                return false;
-            }
-
-            Map<String, Object> monetizationDetails = (Map<String, Object>) items.get(0).get("monetizationDetails");
-            return monetizationDetails != null && "monetized".equals(monetizationDetails.get("monetizationStatus"));
-
-        } catch (Exception e) {
-            System.out.println("⚠️ 채널 수익 창출 상태를 확인할 수 없습니다.");
-            return false;
-        }
-    }
-
 
     //성장률 계산 및 강/약점 분석 메서드
     private Map<String, Object> calculateGrowthAndRank(List<YouTubeCombinedStatsDto> statsList) {
