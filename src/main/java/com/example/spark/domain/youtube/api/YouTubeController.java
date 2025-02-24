@@ -46,14 +46,18 @@ public class YouTubeController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
 
         // "Bearer " 제거 후 액세스 토큰만 추출
         String accessToken = authorizationHeader.substring(7);
 
-        YouTubeChannelProfileDto profile = youTubeService.getChannelProfile(accessToken);
-        return SuccessResponse.success(profile);
+        try {
+            YouTubeChannelProfileDto profile = youTubeService.getChannelProfile(accessToken);
+            return SuccessResponse.success(profile);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+        }
     }
 
 
@@ -79,16 +83,19 @@ public class YouTubeController {
             @RequestParam String channelId) {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
 
-        // "Bearer " 제거 후 액세스 토큰만 추출
         String accessToken = authorizationHeader.substring(7);
 
-        // 비디오 데이터 가져오기
-        List<YouTubeVideoDto> topVideos = youTubeService.getTopVideos(accessToken, channelId);
-        return SuccessResponse.success(topVideos);
+        try {
+            List<YouTubeVideoDto> topVideos = youTubeService.getTopVideos(accessToken, channelId);
+            return SuccessResponse.success(topVideos);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+        }
     }
+
 
     @Operation(
             summary = "채널 통계 데이터 조회",
@@ -112,7 +119,7 @@ public class YouTubeController {
             @RequestParam String channelId) {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
 
         // "Bearer " 제거 후 액세스 토큰만 추출
