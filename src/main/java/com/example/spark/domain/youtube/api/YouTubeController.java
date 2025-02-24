@@ -45,10 +45,6 @@ public class YouTubeController {
     public SuccessResponse<YouTubeChannelProfileDto> getChannelProfile(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
-        }
-
         // "Bearer " 제거 후 액세스 토큰만 추출
         String accessToken = authorizationHeader.substring(7);
 
@@ -82,10 +78,6 @@ public class YouTubeController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam String channelId) {
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
-        }
-
         String accessToken = authorizationHeader.substring(7);
 
         try {
@@ -117,10 +109,6 @@ public class YouTubeController {
     public SuccessResponse<YouTubeAnalysisResultDto> getCombinedYouTubeStats(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam String channelId) {
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
-        }
 
         // "Bearer " 제거 후 액세스 토큰만 추출
         String accessToken = authorizationHeader.substring(7);
