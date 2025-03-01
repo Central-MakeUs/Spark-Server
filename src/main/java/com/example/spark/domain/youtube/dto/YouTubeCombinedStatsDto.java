@@ -14,7 +14,6 @@ public class YouTubeCombinedStatsDto {
     private final long netSubscribers; // ✅ (subscribersGained - subscribersLost) 자동 계산
     private final long likes;
     private final long comments;
-    private final long shares;
     private final double estimatedRevenue;
     private final long averageViewDuration;
     private final int uploadedVideos;
@@ -22,7 +21,7 @@ public class YouTubeCombinedStatsDto {
     // ✅ Builder 내부에서 netSubscribers 자동 계산
     public static YouTubeCombinedStatsDto of(String startDate, String endDate, long views,
                                              long subscribersGained, long subscribersLost, long likes,
-                                             long comments, long shares, double estimatedRevenue,
+                                             long comments, double estimatedRevenue,
                                              long averageViewDuration, int uploadedVideos) {
         return YouTubeCombinedStatsDto.builder()
                 .startDate(startDate)
@@ -31,7 +30,6 @@ public class YouTubeCombinedStatsDto {
                 .netSubscribers(subscribersGained - subscribersLost) // 자동 계산
                 .likes(likes)
                 .comments(comments)
-                .shares(shares)
                 .estimatedRevenue(estimatedRevenue)
                 .averageViewDuration(averageViewDuration)
                 .uploadedVideos(uploadedVideos)

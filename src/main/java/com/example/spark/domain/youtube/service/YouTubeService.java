@@ -231,7 +231,7 @@ public class YouTubeService {
         for (DateRange dateRange : dateRanges) {
 
             // Step 1: 필수 지표만 우선 호출 (Revenue 제외)
-            String basicMetrics = "subscribersGained,subscribersLost,views,likes,comments,shares,averageViewDuration";
+            String basicMetrics = "subscribersGained,subscribersLost,views,likes,comments,averageViewDuration";
 
             String basicAnalyticsUrl = String.format(
                     "https://youtubeanalytics.googleapis.com/v2/reports"
@@ -269,7 +269,6 @@ public class YouTubeService {
             int viewsIdx = headerNames.indexOf("views");
             int likesIdx = headerNames.indexOf("likes");
             int commentsIdx = headerNames.indexOf("comments");
-            int sharesIdx = headerNames.indexOf("shares");
             int averageViewDurationIdx = headerNames.indexOf("averageViewDuration");
 
             int uploadedVideos = uploadStatsMap.getOrDefault(dateRange.getStartDate(), 0);
@@ -323,7 +322,6 @@ public class YouTubeService {
                         Long.parseLong(row.get(subscribersLostIdx)),
                         Long.parseLong(row.get(likesIdx)),
                         Long.parseLong(row.get(commentsIdx)),
-                        Long.parseLong(row.get(sharesIdx)),
                         estimatedRevenue, // 별도 호출로 안전하게 얻음
                         Long.parseLong(row.get(averageViewDurationIdx)),
                         uploadedVideos
@@ -360,7 +358,6 @@ public class YouTubeService {
         growthRates.put("netSubscribers", calculateGrowth(recentStats.getNetSubscribers(), previousStats.getNetSubscribers()));
         growthRates.put("likes", calculateGrowth(recentStats.getLikes(), previousStats.getLikes()));
         growthRates.put("comments", calculateGrowth(recentStats.getComments(), previousStats.getComments()));
-        growthRates.put("shares", calculateGrowth(recentStats.getShares(), previousStats.getShares()));
         growthRates.put("estimatedRevenue", calculateGrowth(recentStats.getEstimatedRevenue(), previousStats.getEstimatedRevenue()));
         growthRates.put("averageViewDuration", calculateGrowth(recentStats.getAverageViewDuration(), previousStats.getAverageViewDuration()));
         growthRates.put("uploadedVideos", calculateGrowth(recentStats.getUploadedVideos(), previousStats.getUploadedVideos()));

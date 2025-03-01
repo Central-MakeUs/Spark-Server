@@ -15,7 +15,6 @@ public class YouTubeChannelStatsDto {
     private long subscribersLost;      // 감소한 구독자 수
     private long likes;                // 좋아요 수
     private long comments;             // 댓글 수
-    private long shares;               // 공유 수
     private Double estimatedRevenue;     // 예상 수익 (단위: USD 또는 지정된 통화)
     private long averageViewDuration;  // 평균 시청 시간 (초)
 }
