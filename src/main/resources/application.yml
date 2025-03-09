@@ -41,11 +41,9 @@ management:
 logging:
   level:
     org.springframework.security: DEBUG
-    io:
-      pinecone: DEBUG
-    com:
-      google:
-        protobuf: DEBUG
+  slack:
+    webhook-uri: ${SLACK_WEBHOOK_URI}
+  config: classpath:logback-spring.xml
 openai:
   api-key: ${OPENAI_API_KEY}
 

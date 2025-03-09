@@ -30,6 +30,9 @@ springdoc:
 logging:
   level:
     org.springframework.security: DEBUG
+  slack:
+    webhook-uri: ${SLACK_WEBHOOK_URI}
+  config: classpath:logback-spring.xml
 management:
   endpoints:
     web:
@@ -42,3 +45,5 @@ pinecone:
   api-key: ${PINECONE_API_KEY}
   host: ${PINECONE_HOST}
   index-name: ${PINECONE_INDEX_NAME}
+
+

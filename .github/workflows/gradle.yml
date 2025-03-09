@@ -67,4 +67,5 @@ jobs:
                 -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
                 -e PINECONE_HOST=${{ secrets.PINECONE_HOST }} \
                 -e PINECONE_INDEX_NAME=${{ secrets.PINECONE_INDEX_NAME }} \
+                -e SLACK_WEBHOOK_URI=${{ secrets.SLACK_WEBHOOK_URI }} \
                 --name spark-container ${{ secrets.DOCKERHUB_USERNAME }}/spark:latest
