@@ -18,13 +18,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/pinecone")
@@ -54,7 +55,7 @@ public class PineconeController {
             }
     )
     @PostMapping("/strategy")
-    public ResponseEntity<Map<String, String>> requestStrategy(@RequestBody StrategyRequestDto requestDto) {
+    public Mono<ResponseEntity<Map<String, String>>> requestStrategy(@RequestBody StrategyRequestDto requestDto) {
         String requestId = UUID.randomUUID().toString();
 
         String userInput = String.format(
@@ -63,26 +64,24 @@ public class PineconeController {
                 requestDto.getWeaknesses().get(0), requestDto.getWeaknesses().get(1)
         );
 
-        List<Float> userEmbedding = openAIEmbeddingService.getEmbedding(userInput);
-        List<String> matchedGuides = pineconeService.findMostRelevantGuides(userEmbedding);
+        Mono<List<String>> matchedGuidesMono = Mono.fromCallable(() -> {
+            List<Float> userEmbedding = openAIEmbeddingService.getEmbedding(userInput);
+            return pineconeService.findMostRelevantGuides(userEmbedding);
+        }).subscribeOn(Schedulers.boundedElastic());
 
-        CompletableFuture<Map<String, ?>> futureStrategy = CompletableFuture.supplyAsync(() -> {
-            try {
-                return chatGPTService.getGrowthStrategy(
-                        requestDto.getActivityDomain(), requestDto.getWorkType(),
-                        requestDto.getSnsGoal(), requestDto.getWeaknesses(),
-                        matchedGuides
-                );
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new HashMap<>(Map.of("error", "전략 생성 중 오류 발생!")); // ✅ HashMap 사용
-            }
-        }).exceptionally(ex -> new HashMap<>(Map.of("error", "전략 생성 실패: " + ex.getMessage()))); // ✅ 타입 명확히 지정
+        Mono<Map<String, ?>> futureStrategyMono = matchedGuidesMono.flatMap(matchedGuides ->
+                Mono.fromCallable(() -> chatGPTService.getGrowthStrategy(
+                                requestDto.getActivityDomain(), requestDto.getWorkType(),
+                                requestDto.getSnsGoal(), requestDto.getWeaknesses(),
+                                matchedGuides
+                        )).onErrorResume(e -> Mono.just(Map.of("error", "전략 생성 실패: " + e.getMessage())))
+                        .subscribeOn(Schedulers.boundedElastic())
+        );
 
-        // ✅ 글로벌 캐시 활용하여 저장
-        strategyCache.put(requestId, futureStrategy);
+        // 캐시 활용하여 저장
+        strategyCache.put(requestId, futureStrategyMono.toFuture());
 
-        return ResponseEntity.ok(Map.of("requestId", requestId));
+        return Mono.just(ResponseEntity.ok(Map.of("requestId", requestId)));
     }
 
 
@@ -107,10 +106,10 @@ public class PineconeController {
         }
 
         try {
-            // ✅ block()을 사용하여 결과가 나올 때까지 기다림
-            Map<String, Object> strategy = (Map<String, Object>) futureStrategy.get();
+            // WebFlux 환경에서 블로킹 방식 유지
+            Map<String, ?> strategy = Mono.fromFuture(futureStrategy).block();
 
-            // ✅ 결과를 캐시에서 제거
+            // 결과를 캐시에서 제거
             strategyCache.remove(requestId);
             return ResponseEntity.ok(strategy);
         } catch (Exception e) {
@@ -119,9 +118,6 @@ public class PineconeController {
                     .body(Map.of("error", "전략 조회 중 오류 발생"));
         }
     }
-
-
-
 
     @Operation(
             summary = "Pinecone에 유튜브 가이드 업로드",
