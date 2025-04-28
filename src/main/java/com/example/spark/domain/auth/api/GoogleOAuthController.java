@@ -1,4 +1,4 @@
-package com.example.spark.domain.youtube.api;
+package com.example.spark.domain.auth.api;
 
 import com.example.spark.global.error.ErrorCode;
 import com.example.spark.global.oauth.GoogleAuthRequest;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Tag(name = "Google OAuth API", description = "Google OAuth 2.0 인증 및 토큰 처리 API")
 @RestController
-public class OAuthController {
+public class GoogleOAuthController {
 
     @Value("${GOOGLE_CLIENT_ID}")
     private String CLIENT_ID;
