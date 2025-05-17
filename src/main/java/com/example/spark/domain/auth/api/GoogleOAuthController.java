@@ -1,9 +1,9 @@
 package com.example.spark.domain.auth.api;
 
 import com.example.spark.global.error.ErrorCode;
-import com.example.spark.global.oauth.GoogleAuthRequest;
-import com.example.spark.global.oauth.GoogleTokenRefreshRequest;
-import com.example.spark.global.response.GoogleTokenResponse;
+import com.example.spark.global.oauth.AuthRequest;
+import com.example.spark.global.oauth.TokenRefreshRequest;
+import com.example.spark.global.response.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,9 +63,9 @@ public class GoogleOAuthController {
      */
     @Operation(summary = "Authorization Code로 Access Token 교환", description = "Google의 Authorization Code를 사용하여 Access Token을 발급받습니다.")
     @PostMapping("/oauth/google/callback")
-    public ResponseEntity<GoogleTokenResponse> exchangeCodeForToken(@RequestBody GoogleAuthRequest request) {
+    public ResponseEntity<TokenResponse> exchangeCodeForToken(@RequestBody AuthRequest request) {
         if (request.getCode() == null || request.getCode().isEmpty()) {
-            return ResponseEntity.badRequest().body(new GoogleTokenResponse(ErrorCode.INVALID_AUTHORIZATION_CODE));
+            return ResponseEntity.badRequest().body(new TokenResponse(ErrorCode.INVALID_AUTHORIZATION_CODE));
         }
 
         // 요청 파라미터 생성 (Body 포함)
@@ -86,13 +86,13 @@ public class GoogleOAuthController {
         // Google 서버로 요청 보내기
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<GoogleTokenResponse> response = restTemplate.postForEntity(
-                    TOKEN_ENDPOINT, requestEntity, GoogleTokenResponse.class);
+            ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
+                    TOKEN_ENDPOINT, requestEntity, TokenResponse.class);
 
             return response.getStatusCode().is2xxSuccessful()
                     ? ResponseEntity.ok(response.getBody())
                     : ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new GoogleTokenResponse(ErrorCode.ACCESS_TOKEN_EXPIRED));
+                    .body(new TokenResponse(ErrorCode.ACCESS_TOKEN_EXPIRED));
 
         } catch (Exception ex) {
             ErrorCode errorCode = ex.getMessage().contains("invalid_grant")
@@ -100,18 +100,18 @@ public class GoogleOAuthController {
                     : ErrorCode.UNEXPECTED_ERROR;
 
             return ResponseEntity.status(errorCode.getStatus())
-                    .body(new GoogleTokenResponse(errorCode));
+                    .body(new TokenResponse(errorCode));
         }
     }
 
     @Operation(summary = "Refresh Token을 사용하여 Access Token 갱신", description = "Google의 Refresh Token을 사용하여 새로운 Access Token을 발급받습니다.")
     @PostMapping("/oauth/google/refresh")
-    public ResponseEntity<GoogleTokenResponse> refreshAccessToken(@RequestBody GoogleTokenRefreshRequest request) {
+    public ResponseEntity<TokenResponse> refreshAccessToken(@RequestBody TokenRefreshRequest request) {
         String refreshToken = request.getRefreshToken();
 
         if (refreshToken == null || refreshToken.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new GoogleTokenResponse(ErrorCode.REFRESH_TOKEN_EXPIRED));
+                    .body(new TokenResponse(ErrorCode.REFRESH_TOKEN_EXPIRED));
         }
 
         // 요청 파라미터 생성
@@ -131,13 +131,13 @@ public class GoogleOAuthController {
         // Google 서버로 요청 보내기
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<GoogleTokenResponse> response = restTemplate.postForEntity(
-                    TOKEN_ENDPOINT, requestEntity, GoogleTokenResponse.class);
+            ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
+                    TOKEN_ENDPOINT, requestEntity, TokenResponse.class);
 
             return response.getStatusCode().is2xxSuccessful()
                     ? ResponseEntity.ok(response.getBody())
                     : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GoogleTokenResponse(ErrorCode.INTERNAL_SERVER_ERROR));
+                    .body(new TokenResponse(ErrorCode.INTERNAL_SERVER_ERROR));
 
         } catch (Exception ex) {
             ErrorCode errorCode = ex.getMessage().contains("invalid_grant") ?
@@ -145,7 +145,7 @@ public class GoogleOAuthController {
                     ErrorCode.INTERNAL_SERVER_ERROR;   // 기타 예상치 못한 오류는 INTERNAL_SERVER_ERROR 반환
 
             return ResponseEntity.status(errorCode.getStatus())
-                    .body(new GoogleTokenResponse(errorCode));
+                    .body(new TokenResponse(errorCode));
         }
     }
 }

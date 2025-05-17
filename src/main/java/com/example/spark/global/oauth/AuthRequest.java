@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GoogleAuthRequest {
+public class AuthRequest {
     @Schema(description = "Google Authorization Code", example = "4/0ASVgi3KyVjpomtvUkkR-UFNZti0...")
     private String code;
 }
