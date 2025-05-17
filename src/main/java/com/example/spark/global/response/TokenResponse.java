@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL) // null 값 필드는 응답에서 제외
-public class GoogleTokenResponse {
+public class TokenResponse {
 
     @JsonProperty("access_token")
     private String accessToken;
@@ -35,7 +35,7 @@ public class GoogleTokenResponse {
     /**
      * 오류 응답을 위한 생성자
      */
-    public GoogleTokenResponse(ErrorCode errorCode) {
+    public TokenResponse(ErrorCode errorCode) {
         this.status = errorCode.getStatus();
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();

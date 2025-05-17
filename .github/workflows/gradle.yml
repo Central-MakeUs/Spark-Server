@@ -63,6 +63,9 @@ jobs:
                 -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
                 -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
                 -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
+                -e META_CLIENT_ID=${{ secrets.META_CLIENT_ID }} \
+                -e META_CLIENT_SECRET=${{ secrets.META_CLIENT_SECRET }} \
+                -e META_REDIRECT_URI=${{ secrets.META_REDIRECT_URI }} \
                 -e PINECONE_API_KEY=${{ secrets.PINECONE_API_KEY }} \
                 -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
                 -e PINECONE_HOST=${{ secrets.PINECONE_HOST }} \

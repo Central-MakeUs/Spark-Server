@@ -12,7 +12,8 @@ public enum ErrorCode {
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_999", "Unexpected error occurred"),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED.value(), "COMMON_009", "Invalid access token"),
     INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST.value(), "COMMON_013", "Invalid authorization code"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_999", "Unexpected error occurred");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_999", "Unexpected error occurred"),
+    PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "YOUTUBE_001", "Channel profile not found");
     private final int status;
     private final String code;
     private final String message;

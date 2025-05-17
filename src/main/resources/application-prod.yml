@@ -14,10 +14,27 @@ spring:
               - https://www.googleapis.com/auth/yt-analytics.readonly
               - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
             redirect-uri: ${GOOGLE_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+          meta:
+            client-id: ${META_CLIENT_ID}
+            client-secret: ${META_CLIENT_SECRET}
+            scope:
+              - pages_show_list
+              - ads_read
+              - instagram_basic
+              - instagram_manage_insights
+              - pages_read_engagement
+            redirect-uri: ${META_REDIRECT_URI}
+            authorization-grant-type: authorization_code
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
             token-uri: https://oauth2.googleapis.com/token
+          meta:
+            authorization-uri: https://www.facebook.com/v22.0/dialog/oauth
+            token-uri: https://graph.facebook.com/v22.0/oauth/access_token
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
+            user-name-attribute: id
 server:
   servlet:
     context-path: /
