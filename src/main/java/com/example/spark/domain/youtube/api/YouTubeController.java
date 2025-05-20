@@ -1,6 +1,6 @@
 package com.example.spark.domain.youtube.api;
 
-import com.example.spark.domain.flask.dto.YouTubeDataCache;
+import com.example.spark.domain.youtube.dto.YouTubeDataCache;
 import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import com.example.spark.domain.youtube.dto.YouTubeChannelProfileDto;
 import com.example.spark.domain.youtube.dto.YouTubeVideoDto;

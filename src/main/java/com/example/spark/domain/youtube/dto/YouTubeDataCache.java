@@ -1,6 +1,5 @@
-package com.example.spark.domain.flask.dto;
+package com.example.spark.domain.youtube.dto;
 
-import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;

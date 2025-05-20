@@ -11,14 +11,14 @@ public class YouTubeCombinedStatsDto {
     private final String startDate;
     private final String endDate;
     private final long views;
-    private final long netSubscribers; // ✅ (subscribersGained - subscribersLost) 자동 계산
+    private final long netSubscribers; // (subscribersGained - subscribersLost) 계산
     private final long likes;
     private final long comments;
     private final double estimatedRevenue;
     private final long averageViewDuration;
     private final int uploadedVideos;
 
-    // ✅ Builder 내부에서 netSubscribers 자동 계산
+    // Builder 내부에서 netSubscribers 자동 계산
     public static YouTubeCombinedStatsDto of(String startDate, String endDate, long views,
                                              long subscribersGained, long subscribersLost, long likes,
                                              long comments, double estimatedRevenue,
