@@ -15,4 +15,5 @@ public class MetaProfileDto {
     private Long followersCount;
     private Long followingCount;
     private Long postsCount;
+    private String instagramBusinessAccountId;
 }
