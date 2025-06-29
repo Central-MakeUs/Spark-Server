@@ -28,7 +28,6 @@ public class MetaController {
                                           
                     **요청값**
                     - `accessToken`: Meta API 인증에 필요한 액세스 토큰
-                    - `instagram_business_account_id`: Instagram 비즈니스 계정 ID  
                                         
                     **응답값**
                     - 유저명
@@ -36,6 +35,7 @@ public class MetaController {
                     - 팔로워 수 
                     - 팔로잉 수 
                     - 게시글 수
+                    - Instagram 비즈니스 계정 ID  
                     """
     )
     @GetMapping("/account-profile")
