@@ -1,9 +1,8 @@
 package com.example.spark.domain.wma.api;
 
-
-import com.example.spark.domain.flask.dto.YouTubeDataCache;
+import com.example.spark.domain.flask.dto.MetaDataCache;
 import com.example.spark.domain.wma.service.PredictionService;
-import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.meta.dto.MetaAnalysisResultDto;
 import com.example.spark.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,41 +11,39 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-@Tag(name = "Prediction API", description = "3개월 뒤 조회수/구독자수를 계산하는 API")
+@Tag(name = "Meta Prediction API", description = "3개월 뒤 Instagram 지표를 계산하는 API")
 @RestController
 @RequiredArgsConstructor
-public class PredictionController {
-    private final PredictionService PredictionService;
-    private final YouTubeDataCache YouTubeDataCache;
+public class MetaPredictionController {
+    private final PredictionService predictionService;
+    private final MetaDataCache metaDataCache;
     
     @Operation(
-            summary = "WMA 기반 성장 예측",
+            summary = "WMA 기반 Instagram 성장 예측",
             description = """
-                    최근 3개 기간의 조회수/구독자수 데이터를 기반으로
-                    3개월 뒤 조회수/구독자수를 가중 이동 평균(WMA)으로 예측합니다.
+                    최근 3개 기간의 Instagram 지표 데이터를 기반으로
+                    3개월 뒤 주요 지표들을 가중 이동 평균(WMA)으로 예측합니다.
                     
                     **요청값**
-                    - `channelId`: 조회할 채널 ID
+                    - `instagramBusinessAccountId`: 조회할 Instagram 비즈니스 계정 ID
                     
                     **응답값**
-                    - 3개월 뒤 조회수 예측
-                    - 3개월 뒤 구독자수 예측
+                    - 3개월 뒤 팔로워수 예측
+                    - 3개월 뒤 조회수 예측 (팔로워 + 비팔로워 합계)
                     """
     )
-    @GetMapping("/channel-predictions")
-    public SuccessResponse<Map<String, Double>> getWmaPredictions(@RequestParam String channelId) {
+    @GetMapping("/meta-predictions")
+    public SuccessResponse<Map<String, Double>> getMetaWmaPredictions(@RequestParam String instagramBusinessAccountId) {
 
-        YouTubeAnalysisResultDto analysisResult = null;
+        MetaAnalysisResultDto analysisResult = null;
         int retryCount = 0;
         int maxRetries = 3; // 최대 3회 재시도
         int delayMillis = 700; // 0.7초 대기 후 재시도
 
         while (retryCount < maxRetries) {
-            analysisResult = YouTubeDataCache.getAndRemoveData(channelId);
+            analysisResult = metaDataCache.getAndRemoveData(instagramBusinessAccountId);
 
             if (analysisResult != null && analysisResult.getStats().size() >= 3) {
                 break; // 데이터가 충분하면 반복문 탈출
@@ -68,8 +65,8 @@ public class PredictionController {
         }
 
         // WMA 기반 성장 예측 수행
-        Map<String, Double> wmaPredictions = PredictionService.calculateWMAPredictions(analysisResult.getStats());
+        Map<String, Double> wmaPredictions = predictionService.calculateMetaWMAPredictions(analysisResult.getStats());
 
         return SuccessResponse.success(wmaPredictions);
     }
-}
+} 
