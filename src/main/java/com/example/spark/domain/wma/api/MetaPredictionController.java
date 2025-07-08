@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@Tag(name = "Meta Prediction API", description = "3개월 뒤 Instagram 지표를 계산하는 API")
+@Tag(name = "Meta Average Views API", description = "Instagram 미디어 1개당 평균 조회수를 계산하는 API")
 @RestController
 @RequiredArgsConstructor
 public class MetaPredictionController {
@@ -21,22 +21,26 @@ public class MetaPredictionController {
     private final MetaDataCache metaDataCache;
     
     @Operation(
-            summary = "WMA 기반 Instagram 성장 예측",
+            summary = "Instagram 미디어 1개당 평균 조회수 계산",
             description = """
-                    최근 3개 기간의 Instagram 지표 데이터를 기반으로
-                    3개월 뒤 주요 지표들을 가중 이동 평균(WMA)으로 예측합니다.
+                    최근 3개 기간의 데이터를 기반으로 각 기간별 미디어 1개당 평균 조회수를 계산합니다.
+                    
+                    **계산 공식**
+                    - 최근 30일: 최근 30일간 조회수 / 최근 30일간 업로드한 미디어수
+                    - 30~60일: 30~60일간 조회수 / 30~60일간 업로드한 미디어수  
+                    - 60~90일: 60~90일간 조회수 / 60~90일간 업로드한 미디어수
                     
                     **요청값**
                     - `instagramBusinessAccountId`: 조회할 Instagram 비즈니스 계정 ID
                     
                     **응답값**
-                    - 3개월 뒤 팔로워수 예측
-                    - 3개월 뒤 조회수 예측 (팔로워 + 비팔로워 합계)
+                    - `recent30Days`: 최근 30일 평균 조회수
+                    - `days30to60`: 30~60일 평균 조회수
+                    - `days60to90`: 60~90일 평균 조회수
                     """
     )
-    @GetMapping("/meta-predictions")
-    public SuccessResponse<Map<String, Double>> getMetaWmaPredictions(@RequestParam String instagramBusinessAccountId) {
-
+    @GetMapping("/meta-average-views-per-media")
+    public SuccessResponse<Map<String, Double>> getMetaAverageViewsPerMedia(@RequestParam String instagramBusinessAccountId) {
         MetaAnalysisResultDto analysisResult = null;
         int retryCount = 0;
         int maxRetries = 3; // 최대 3회 재시도
@@ -61,12 +65,12 @@ public class MetaPredictionController {
 
         // 최종적으로도 데이터 부족하면 예외 발생
         if (analysisResult == null || analysisResult.getStats().size() < 3) {
-            throw new RuntimeException("WMA 예측을 위해 최소 3개 기간 데이터가 필요합니다.");
+            throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
         }
 
-        // WMA 기반 성장 예측 수행
-        Map<String, Double> wmaPredictions = predictionService.calculateMetaWMAPredictions(analysisResult.getStats());
+        // 미디어 1개당 평균 조회수 계산 수행
+        Map<String, Double> averageViews = predictionService.calculateMetaAverageViewsPerVideo(analysisResult.getStats());
 
-        return SuccessResponse.success(wmaPredictions);
+        return SuccessResponse.success(averageViews);
     }
 } 

@@ -6,70 +6,86 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 @Service
 public class PredictionService {
-    public Map<String, Double> calculateWMAPredictions(List<YouTubeCombinedStatsDto> stats) {
+    
+    // YouTube 영상 1개당 평균 조회수 계산
+    public Map<String, Double> calculateAverageViewsPerVideo(List<YouTubeCombinedStatsDto> stats) {
         if (stats.size() < 3) {
-            throw new RuntimeException("WMA 예측을 위해 최소 3개 기간 데이터가 필요합니다.");
+            throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
         }
 
-        // 가중치 설정 (최근 데이터에 더 높은 가중치)
-        double w1 = 0.5;
-        double w2 = 0.3;
-        double w3 = 0.2;
+        Map<String, Double> averageViews = new LinkedHashMap<>(); // 순서 보장
 
-        // 최근 3개 기간 데이터
-        double recentViews = stats.get(0).getViews();
-        double midViews = stats.get(1).getViews();
-        double oldViews = stats.get(2).getViews();
+        // recent30Days
+        YouTubeCombinedStatsDto stat0 = stats.get(0);
+        double totalViews0 = stat0.getViews();
+        int uploadedVideos0 = stat0.getUploadedVideos();
+        double avgViews0 = uploadedVideos0 > 0 ? totalViews0 / uploadedVideos0 : 0.0;
+        averageViews.put("recent30Days", Math.round(avgViews0 * 100.0) / 100.0);
 
-        double recentSubscribers = stats.get(0).getNetSubscribers();
-        double midSubscribers = stats.get(1).getNetSubscribers();
-        double oldSubscribers = stats.get(2).getNetSubscribers();
+        // days30to60
+        YouTubeCombinedStatsDto stat1 = stats.get(1);
+        double totalViews1 = stat1.getViews();
+        int uploadedVideos1 = stat1.getUploadedVideos();
+        double avgViews1 = uploadedVideos1 > 0 ? totalViews1 / uploadedVideos1 : 0.0;
+        averageViews.put("days30to60", Math.round(avgViews1 * 100.0) / 100.0);
 
-        // WMA 계산
-        double predictedViews = (w1 * recentViews) + (w2 * midViews) + (w3 * oldViews);
-        double predictedNetSubscribers = (w1 * recentSubscribers) + (w2 * midSubscribers) + (w3 * oldSubscribers);
+        // days60to90
+        YouTubeCombinedStatsDto stat2 = stats.get(2);
+        double totalViews2 = stat2.getViews();
+        int uploadedVideos2 = stat2.getUploadedVideos();
+        double avgViews2 = uploadedVideos2 > 0 ? totalViews2 / uploadedVideos2 : 0.0;
+        averageViews.put("days60to90", Math.round(avgViews2 * 100.0) / 100.0);
 
-        // 결과 반환
-        Map<String, Double> predictions = new HashMap<>();
-        predictions.put("predictedViews", Double.valueOf((int) Math.round(predictedViews)));
-        predictions.put("predictedNetSubscribers", Double.valueOf((int) Math.round(predictedNetSubscribers)));
-
-        return predictions;
+        return averageViews;
     }
 
-    public Map<String, Double> calculateMetaWMAPredictions(List<MetaStatsDto> stats) {
+    // Instagram 미디어 1개당 평균 조회수 계산
+    public Map<String, Double> calculateMetaAverageViewsPerVideo(List<MetaStatsDto> stats) {
         if (stats.size() < 3) {
-            throw new RuntimeException("WMA 예측을 위해 최소 3개 기간 데이터가 필요합니다.");
+            throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
         }
 
-        // 가중치 설정 (최근 데이터에 더 높은 가중치)
-        double w1 = 0.5;
-        double w2 = 0.3;
-        double w3 = 0.2;
+        Map<String, Double> averageViews = new LinkedHashMap<>(); // 순서 보장
 
-        // 최근 3개 기간 데이터 - 팔로워수
-        double recentFollowers = stats.get(0).getFollowers();
-        double midFollowers = stats.get(1).getFollowers();
-        double oldFollowers = stats.get(2).getFollowers();
+        // recent30Days
+        MetaStatsDto stat0 = stats.get(0);
+        double totalViews0 = stat0.getViewsFollowers() + stat0.getViewsNonFollowers();
+        int uploadedMedia0 = stat0.getUploadedMedia().intValue();
+        double avgViews0 = uploadedMedia0 > 0 ? totalViews0 / uploadedMedia0 : 0.0;
+        averageViews.put("recent30Days", Math.round(avgViews0 * 100.0) / 100.0);
 
-        // 최근 3개 기간 데이터 - 조회수 (follower + non-follower 합계)
-        double recentViews = stats.get(0).getViewsFollowers() + stats.get(0).getViewsNonFollowers();
-        double midViews = stats.get(1).getViewsFollowers() + stats.get(1).getViewsNonFollowers();
-        double oldViews = stats.get(2).getViewsFollowers() + stats.get(2).getViewsNonFollowers();
+        // days30to60
+        MetaStatsDto stat1 = stats.get(1);
+        double totalViews1 = stat1.getViewsFollowers() + stat1.getViewsNonFollowers();
+        int uploadedMedia1 = stat1.getUploadedMedia().intValue();
+        double avgViews1 = uploadedMedia1 > 0 ? totalViews1 / uploadedMedia1 : 0.0;
+        averageViews.put("days30to60", Math.round(avgViews1 * 100.0) / 100.0);
 
-        // WMA 계산
-        double predictedFollowers = (w1 * recentFollowers) + (w2 * midFollowers) + (w3 * oldFollowers);
-        double predictedViews = (w1 * recentViews) + (w2 * midViews) + (w3 * oldViews);
+        // days60to90
+        MetaStatsDto stat2 = stats.get(2);
+        double totalViews2 = stat2.getViewsFollowers() + stat2.getViewsNonFollowers();
+        int uploadedMedia2 = stat2.getUploadedMedia().intValue();
+        double avgViews2 = uploadedMedia2 > 0 ? totalViews2 / uploadedMedia2 : 0.0;
+        averageViews.put("days60to90", Math.round(avgViews2 * 100.0) / 100.0);
 
-        // 결과 반환
-        Map<String, Double> predictions = new HashMap<>();
-        predictions.put("predictedFollowers", Double.valueOf((int) Math.round(predictedFollowers)));
-        predictions.put("predictedViews", Double.valueOf((int) Math.round(predictedViews)));
+        return averageViews;
+    }
 
-        return predictions;
+    // 기간별 키 생성
+    private String getPeriodKey(int index) {
+        switch (index) {
+            case 0:
+                return "recent30Days"; // 최근 30일
+            case 1:
+                return "days30to60";   // 30~60일
+            case 2:
+                return "days60to90";   // 60~90일
+            default:
+                return "period" + (index + 1);
+        }
     }
 }
