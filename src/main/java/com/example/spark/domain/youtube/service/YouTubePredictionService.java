@@ -1,4 +1,4 @@
-package com.example.spark.domain.wma.service;
+package com.example.spark.domain.youtube.service;
 
 import com.example.spark.domain.youtube.dto.YouTubeCombinedStatsDto;
 import org.springframework.stereotype.Service;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 @Service
-public class PredictionService {
+public class YouTubePredictionService {
     public Map<String, Double> calculateWMAPredictions(List<YouTubeCombinedStatsDto> stats) {
         if (stats.size() < 3) {
             throw new RuntimeException("WMA 예측을 위해 최소 3개 기간 데이터가 필요합니다.");
@@ -39,4 +39,4 @@ public class PredictionService {
 
         return predictions;
     }
-}
+} 

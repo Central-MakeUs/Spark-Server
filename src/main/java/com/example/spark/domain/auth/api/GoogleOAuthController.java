@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-@Tag(name = "Google OAuth API", description = "Google OAuth 2.0 인증 및 토큰 처리 API")
+@Tag(name = "YouTube(Google) - OAuth", description = "Google OAuth 2.0 인증 및 토큰 처리 API")
 @RestController
 public class GoogleOAuthController {
 

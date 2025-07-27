@@ -1,5 +1,6 @@
-package com.example.spark.domain.statistics.dto;
+package com.example.spark.domain.meta.dto;
 
+import com.example.spark.domain.meta.dto.MetaStatsDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

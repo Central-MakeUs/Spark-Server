@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/pinecone")
 @AllArgsConstructor
-@Tag(name = "Pinecone API", description = "Pinecone Vector Search 기반 API")
+@Tag(name = "AI Strategy", description = "Pinecone Vector Search 기반 API")
 public class PineconeController {
     private final ChatGPTService chatGPTService;
     private final PineconeService pineconeService;

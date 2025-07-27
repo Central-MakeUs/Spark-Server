@@ -1,37 +1,39 @@
-package com.example.spark.domain.statistics.api;
+package com.example.spark.domain.youtube.api;
 
-import com.example.spark.domain.statistics.service.MetaDataCache;
-import com.example.spark.domain.statistics.dto.MetaAnalysisResultDto;
-import com.example.spark.domain.statistics.service.MetaStatisticsService;
+import com.example.spark.domain.youtube.service.YouTubeDataCache;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.youtube.service.YouTubeStatisticsService;
 import com.example.spark.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@Tag(name = "Meta Statistics API", description = "Instagram 미디어 1개당 평균 조회수 통계 API")
+@Tag(name = "YouTube(Google) - Statistics", description = "YouTube 영상 1개당 평균 조회수 통계 API")
 @RestController
 @RequiredArgsConstructor
-public class MetaStatisticsController {
-    private final MetaStatisticsService metaStatisticsService;
-    private final MetaDataCache metaDataCache;
+@RequestMapping("/youtube")
+public class YouTubeStatisticsController {
+    private final YouTubeStatisticsService youTubeStatisticsService;
+    private final YouTubeDataCache youTubeDataCache;
 
     @Operation(
-            summary = "Instagram 미디어 1개당 평균 조회수 계산",
+            summary = "YouTube 영상 1개당 평균 조회수 계산",
             description = """
-                    최근 3개 기간의 데이터를 기반으로 각 기간별 미디어 1개당 평균 조회수를 계산합니다.
+                    최근 3개 기간의 데이터를 기반으로 각 기간별 영상 1개당 평균 조회수를 계산합니다.
                     
                     **계산 공식**
-                    - 최근 30일: 최근 30일간 조회수 / 최근 30일간 업로드한 미디어수
-                    - 30~60일: 30~60일간 조회수 / 30~60일간 업로드한 미디어수  
-                    - 60~90일: 60~90일간 조회수 / 60~90일간 업로드한 미디어수
+                    - 최근 30일: 최근 30일간 조회수 / 최근 30일간 업로드한 영상수
+                    - 30~60일: 30~60일간 조회수 / 30~60일간 업로드한 영상수  
+                    - 60~90일: 60~90일간 조회수 / 60~90일간 업로드한 영상수
                     
                     **요청값**
-                    - `instagramBusinessAccountId`: 조회할 Instagram 비즈니스 계정 ID
+                    - `channelId`: 조회할 YouTube 채널 ID
                     
                     **응답값**
                     - `recent30Days`: 최근 30일 평균 조회수
@@ -39,15 +41,15 @@ public class MetaStatisticsController {
                     - `days60to90`: 60~90일 평균 조회수
                     """
     )
-    @GetMapping("/meta-average-views")
-    public SuccessResponse<Map<String, Double>> getMetaAverageViews(@RequestParam String instagramBusinessAccountId) {
-        MetaAnalysisResultDto analysisResult = null;
+    @GetMapping("/statistics/average-views")
+    public SuccessResponse<Map<String, Double>> getYouTubeAverageViews(@RequestParam String channelId) {
+        YouTubeAnalysisResultDto analysisResult = null;
         int retryCount = 0;
         int maxRetries = 3; // 최대 3회 재시도
         int delayMillis = 700; // 0.7초 대기 후 재시도
 
         while (retryCount < maxRetries) {
-            analysisResult = metaDataCache.getAndRemoveData(instagramBusinessAccountId);
+            analysisResult = youTubeDataCache.getAndRemoveData(channelId);
 
             if (analysisResult != null && analysisResult.getStats().size() >= 3) {
                 break; // 데이터가 충분하면 반복문 탈출
@@ -68,8 +70,8 @@ public class MetaStatisticsController {
             throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
         }
 
-        // 미디어 1개당 평균 조회수 계산 수행
-        Map<String, Double> averageViews = metaStatisticsService.calculateMetaAverageViews(analysisResult.getStats());
+        // 영상 1개당 평균 조회수 계산 수행
+        Map<String, Double> averageViews = youTubeStatisticsService.calculateYouTubeAverageViews(analysisResult.getStats());
 
         return SuccessResponse.success(averageViews);
     }

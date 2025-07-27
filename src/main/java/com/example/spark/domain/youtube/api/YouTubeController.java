@@ -1,7 +1,7 @@
 package com.example.spark.domain.youtube.api;
 
-import com.example.spark.domain.statistics.service.YouTubeDataCache;
-import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.youtube.service.YouTubeDataCache;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import com.example.spark.domain.youtube.dto.YouTubeChannelProfileDto;
 import com.example.spark.domain.youtube.dto.YouTubeVideoDto;
 import com.example.spark.domain.youtube.service.YouTubeService;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "YouTube API", description = "YouTube Analytics 데이터를 관리하는 API")
+@Tag(name = "YouTube(Google) - Analytics", description = "YouTube Analytics 데이터를 관리하는 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/youtube")

@@ -1,11 +1,12 @@
 package com.example.spark.domain.flask.api;
 
-import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
-import com.example.spark.domain.statistics.service.YouTubeDataCache;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.youtube.service.YouTubeDataCache;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,14 +17,16 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "Flask", description = "Flask 서버와의 데이터 전송 API (Deprecated)")
 @RestController
 @RequiredArgsConstructor
+@Deprecated
 public class FlaskController {
     private final YouTubeDataCache youTubeDataCache;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Operation(
-            summary = "YouTube Analytics 데이터 전송",
+            summary = "YouTube Analytics 데이터 전송 (Deprecated)",
             description = """
                     YouTube Analytics 데이터를 Flask 서버로 전송합니다.
                     추가적으로 사용자 정보 기입 페이지에서 받은 데이터도 함께 전송합니다.
@@ -39,8 +42,10 @@ public class FlaskController {
                     
                     **참고**
                     - Flask 서버 URL: http://221.147.110.182:5000/
+                    - **⚠️ 이 API는 더 이상 사용되지 않습니다. 향후 버전에서 제거될 예정입니다.**
 
-                    """
+                    """,
+            deprecated = true
     )
     @PostMapping("/relay-youtube-analytics")
     public ResponseEntity<Map<String, Object>> relayYouTubeAnalyticsToFlask(

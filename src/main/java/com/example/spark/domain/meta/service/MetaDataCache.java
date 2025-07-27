@@ -1,6 +1,6 @@
-package com.example.spark.domain.statistics.service;
+package com.example.spark.domain.meta.service;
 
-import com.example.spark.domain.statistics.dto.MetaAnalysisResultDto;
+import com.example.spark.domain.meta.dto.MetaAnalysisResultDto;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;

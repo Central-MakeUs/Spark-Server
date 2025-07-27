@@ -1,6 +1,6 @@
-package com.example.spark.domain.statistics.service;
+package com.example.spark.domain.meta.service;
 
-import com.example.spark.domain.statistics.dto.MetaStatsDto;
+import com.example.spark.domain.meta.dto.MetaStatsDto;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;

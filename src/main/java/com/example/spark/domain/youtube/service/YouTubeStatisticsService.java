@@ -1,4 +1,4 @@
-package com.example.spark.domain.statistics.service;
+package com.example.spark.domain.youtube.service;
 
 import com.example.spark.domain.youtube.dto.YouTubeCombinedStatsDto;
 import org.springframework.stereotype.Service;

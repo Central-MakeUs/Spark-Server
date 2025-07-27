@@ -1,7 +1,7 @@
 package com.example.spark.domain.youtube.service;
 
 import com.example.spark.domain.youtube.dto.*;
-import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import com.example.spark.global.util.DateRange;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

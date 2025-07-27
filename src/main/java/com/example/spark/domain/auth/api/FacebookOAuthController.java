@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Map;
 
-@Tag(name = "Meta OAuth API", description = "Meta OAuth 2.0 인증 및 토큰 처리 API")
+@Tag(name = "Meta - OAuth", description = "Meta OAuth 2.0 인증 및 토큰 처리 API")
 @RestController
 public class FacebookOAuthController {
     @Value("${META_CLIENT_ID}")

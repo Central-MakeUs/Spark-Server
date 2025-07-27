@@ -2,8 +2,8 @@ package com.example.spark.domain.meta.service;
 
 import com.example.spark.domain.meta.dto.MetaProfileDto;
 import com.example.spark.domain.meta.dto.MetaContentDto;
-import com.example.spark.domain.statistics.dto.MetaStatsDto;
-import com.example.spark.domain.statistics.dto.MetaAnalysisResultDto;
+import com.example.spark.domain.meta.dto.MetaStatsDto;
+import com.example.spark.domain.meta.dto.MetaAnalysisResultDto;
 import com.example.spark.global.util.DateRange;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpEntity;
@@ -122,7 +122,7 @@ public class MetaService {
             String caption = media.has("caption") ? media.get("caption").asText() : "";
             String timestamp = media.get("timestamp").asText();
             String mediaType = media.get("media_type").asText();
-
+            
             // media_type에 따라 적절한 URL 선택
             String contentUrl = "";
             if ("VIDEO".equals(mediaType)) {
@@ -132,7 +132,7 @@ public class MetaService {
                 // 이미지인 경우 media_url 사용
                 contentUrl = media.has("media_url") ? media.get("media_url").asText() : "";
             }
-
+            
             Long views = 0L;
             if (media.has("insights") && media.get("insights").has("data")) {
                 JsonNode insights = media.get("insights").get("data");

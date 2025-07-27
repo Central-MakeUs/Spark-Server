@@ -1,6 +1,5 @@
-package com.example.spark.domain.statistics.dto;
+package com.example.spark.domain.youtube.dto;
 
-import com.example.spark.domain.youtube.dto.YouTubeCombinedStatsDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

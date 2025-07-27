@@ -1,6 +1,6 @@
-package com.example.spark.domain.statistics.service;
+package com.example.spark.domain.youtube.service;
 
-import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;

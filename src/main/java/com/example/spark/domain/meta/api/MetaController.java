@@ -2,8 +2,8 @@ package com.example.spark.domain.meta.api;
 
 import com.example.spark.domain.meta.dto.MetaProfileDto;
 import com.example.spark.domain.meta.dto.MetaContentDto;
-import com.example.spark.domain.statistics.dto.MetaAnalysisResultDto;
-import com.example.spark.domain.statistics.service.MetaDataCache;
+import com.example.spark.domain.meta.dto.MetaAnalysisResultDto;
+import com.example.spark.domain.meta.service.MetaDataCache;
 import com.example.spark.domain.meta.service.MetaService;
 import com.example.spark.global.error.CustomException;
 import com.example.spark.global.error.ErrorCode;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Meta API", description = "Meta(Instagram) 데이터를 관리하는 API")
+@Tag(name = "Meta - Analytics", description = "Meta(Instagram) 데이터를 관리하는 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/meta")
