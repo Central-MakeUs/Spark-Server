@@ -1,7 +1,7 @@
 package com.example.spark.domain.flask.api;
 
-import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
-import com.example.spark.domain.youtube.dto.YouTubeDataCache;
+import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.statistics.service.YouTubeDataCache;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

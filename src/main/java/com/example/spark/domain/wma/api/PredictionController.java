@@ -1,9 +1,9 @@
 package com.example.spark.domain.wma.api;
 
 
-import com.example.spark.domain.youtube.dto.YouTubeDataCache;
+import com.example.spark.domain.statistics.service.YouTubeDataCache;
 import com.example.spark.domain.wma.service.PredictionService;
-import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
 import com.example.spark.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
