@@ -5,6 +5,7 @@ import com.example.spark.domain.meta.dto.MetaContentDto;
 import com.example.spark.domain.statistics.dto.MetaAnalysisResultDto;
 import com.example.spark.domain.statistics.service.MetaDataCache;
 import com.example.spark.domain.meta.service.MetaService;
+import com.example.spark.domain.flask.dto.MetaDataCache;
 import com.example.spark.global.error.CustomException;
 import com.example.spark.global.error.ErrorCode;
 import com.example.spark.global.response.SuccessResponse;

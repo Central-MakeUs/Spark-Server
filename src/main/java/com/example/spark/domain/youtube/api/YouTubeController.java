@@ -99,7 +99,10 @@ public class YouTubeController {
                     - `channelId`: 조회할 채널의 ID
 
                     **응답값**
-                    - `YouTubeChannelStatsDto`: 채널 통계 데이터
+                    - `stats`: 기간별 통계 데이터 리스트 (조회수, 구독자, 좋아요, 댓글, 수익, 시청시간, 업로드 영상 수)
+                    - `growthRates`: 성장률 분석 데이터 (각 지표별 % 증가율)
+                    - `strengths`: 강점 (상위 2개 지표)
+                    - `weaknesses`: 약점 (하위 2개 지표)
                     """
     )
     /**

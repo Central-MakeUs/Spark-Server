@@ -1,0 +1,438 @@
+[33mcommit d1e81c1db8a17a7d741ad16d1687e71708eb9a82[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/gathering-Meta-Data[m[33m)[m
+Author: sky980221 <sky980221@naver.com>
+Date:   Tue Jun 24 17:40:28 2025 +0900
+
+    feat: get top 3 posts by views
+
+[33mcommit 28caa4c0b267056f2162fb93ff26231f4672f53d[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 574658e ce2f715
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Wed Jun 18 23:00:24 2025 +0900
+
+    Merge pull request #29 from Central-MakeUs/refactor/Improving-chatgpt-prompt
+    
+    refactor: Improving gpt prompt
+
+[33mcommit ce2f715228ab47598516148937b0a8352530c595[m[33m ([m[1;31morigin/refactor/Improving-chatgpt-prompt[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jun 18 22:55:00 2025 +0900
+
+    refactor: Improving gpt prompt
+
+[33mcommit 574658e369c53810a3eb26ed0fe5f78980da020c[m
+Merge: 042aa26 c1e4f5f
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Tue May 20 22:22:53 2025 +0900
+
+    Merge pull request #27 from Central-MakeUs/feature/gathering-Meta-Data
+    
+    feat: Gathering profile info
+
+[33mcommit c1e4f5f9c8ef8025c1632618a4e1ffccd5deebb7[m[33m ([m[1;31morigin/feature/gathering-Meta-Data[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue May 20 22:05:53 2025 +0900
+
+    feat: Gathering profile info
+
+[33mcommit 042aa26fadbe6928a1eafaf5f780a1d3eef0eccd[m[33m ([m[1;31morigin/refactor/code-refactoring[m[33m)[m
+Merge: 3ded889 e450af3
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Sun May 18 07:45:32 2025 +0900
+
+    Merge pull request #25 from Central-MakeUs/feature/gathering-Meta-Data
+    
+    Feature/gathering meta data
+
+[33mcommit e450af3a3c0e1db7bf2dcf8c92c0e3a079d6fcf4[m
+Author: Dori <sky980221@naver.com>
+Date:   Sun May 18 06:45:18 2025 +0900
+
+    feat: Add meta social login
+
+[33mcommit e1a4027bfe53ecd6b27f78ea8b109f843b3f46c0[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Apr 29 01:14:02 2025 +0900
+
+    refactor: refactoring structure
+
+[33mcommit 3ded88980d9db1423324e99ddf0bf879e7b8b010[m[33m ([m[1;32mmain[m[33m)[m
+Merge: d5768c9 1a448bc
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Thu Mar 20 00:25:22 2025 +0900
+
+    Merge pull request #23 from Central-MakeUs/refactor/webflux-async-api
+    
+    refactor: migrate strategy API to WebFlux for async processing
+
+[33mcommit 1a448bc09e871b84d3fb9c75a9c18eb08d0072fe[m[33m ([m[1;31morigin/refactor/webflux-async-api[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Thu Mar 20 00:21:31 2025 +0900
+
+    refactor: migrate strategy API to WebFlux for async processing
+
+[33mcommit d5768c98c38459f7446ce3e93baca06b5e23d259[m
+Author: Dori <sky980221@naver.com>
+Date:   Sun Mar 9 21:29:19 2025 +0900
+
+    feature: Add Slack webhook for AWS errors
+
+[33mcommit 72c9dad582191b464db2a1be1d119221ae10b85a[m
+Author: Dori <sky980221@naver.com>
+Date:   Mon Mar 3 13:50:14 2025 +0900
+
+    hotfix: update prompt
+
+[33mcommit bdda43ee2fef07e284e0badd949c996691790cd8[m
+Author: Dori <sky980221@naver.com>
+Date:   Sat Mar 1 14:46:55 2025 +0900
+
+    hotfix: Add retry logic
+
+[33mcommit 70f183d067e9d6d20f1a5384b0ee02dbd5274f28[m
+Author: Dori <sky980221@naver.com>
+Date:   Sat Mar 1 13:41:25 2025 +0900
+
+    hotfix: delete shares
+
+[33mcommit ce0d970d9998b561544c2c09d7c0470f21a4ec7f[m
+Author: Dori <sky980221@naver.com>
+Date:   Sat Mar 1 13:26:29 2025 +0900
+
+    refactor: update prompt
+
+[33mcommit b86dad914b3851bbc56c20a9f129a83fffbce840[m
+Author: Dori <sky980221@naver.com>
+Date:   Mon Feb 24 21:36:01 2025 +0900
+
+    hotfix: update Exceptions
+
+[33mcommit c0697ff5b91618f0ad317f617320d8b7e3413087[m
+Author: Dori <sky980221@naver.com>
+Date:   Mon Feb 24 21:08:43 2025 +0900
+
+    hotfix: Cors
+
+[33mcommit 3c5c9340f65e9ef0dd5ff3c68106ea722e57765d[m
+Author: sky980221 <sky980221@naver.com>
+Date:   Mon Feb 24 15:33:08 2025 +0900
+
+    hotfix: fix error code conditions
+
+[33mcommit cb7cc178b009567feb3b5fd1bf24d3f78be0a988[m
+Author: Dori <sky980221@naver.com>
+Date:   Mon Feb 24 02:39:41 2025 +0900
+
+    hotfix: update logging
+
+[33mcommit 0317812c2750af4304589f431148bb16c7e61b9d[m
+Author: Dori <sky980221@naver.com>
+Date:   Mon Feb 24 02:38:26 2025 +0900
+
+    bug: fixing estimatedRevenue bug
+
+[33mcommit c34625d98e1f9c184f4bc217e664e0a187fb195f[m
+Merge: eb1ac27 3654b6c
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Sun Feb 23 20:33:17 2025 +0900
+
+    Merge pull request #21 from Central-MakeUs/refacor/add-custom-error-code
+    
+    refactor: Add custom error code in Auth
+
+[33mcommit 3654b6c5d396f847ee5f3c12fbcf2e723a081f98[m[33m ([m[1;31morigin/refacor/add-custom-error-code[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Sun Feb 23 20:27:49 2025 +0900
+
+    refactor: Add custom error code in Auth
+
+[33mcommit eb1ac27fb2a349dc3610771903a184b0b9892eaa[m
+Author: Dori <sky980221@naver.com>
+Date:   Sun Feb 23 16:53:19 2025 +0900
+
+    feat: Add Google OAuth refresh token
+
+[33mcommit 4048c769998003a9fa412dc3570e5c5024bcfc65[m
+Author: Dori <sky980221@naver.com>
+Date:   Thu Feb 20 02:58:58 2025 +0900
+
+    fix: change chatgpt responsebody to json
+
+[33mcommit 7994c479817cef05f2f59ada286e13026bf49e03[m
+Author: Dori <sky980221@naver.com>
+Date:   Thu Feb 20 01:26:09 2025 +0900
+
+    feat: Implement asynchronous processing for strategy generation API
+
+[33mcommit bfe62ea9bea66aeb8384791544cba1fcd8c283eb[m
+Author: Dori <sky980221@naver.com>
+Date:   Thu Feb 20 01:23:16 2025 +0900
+
+    hotfix: update chatgpt prompt
+
+[33mcommit 584cf708848083e80b369f4df8b57ab678a859d6[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Feb 18 23:20:46 2025 +0900
+
+    refactor: Add profileThumbnail in DTO
+
+[33mcommit 3478b1c971dfa9c3ff8c531332fa545d5fadb1e9[m
+Merge: bc544db 289ebac
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Tue Feb 18 22:03:37 2025 +0900
+
+    Merge pull request #18 from Central-MakeUs/feature/vector-db-chatgpt-strategy
+    
+    feat: vectorDB + chatgpt
+
+[33mcommit 289ebac3590ff20739bfe8bd92547451981e27dd[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Feb 18 12:56:30 2025 +0900
+
+    feat: vectorDB + chatgpt
+
+[33mcommit bc544dbe205817dd1458bf6723c5fa698aad308f[m
+Author: Dori <sky980221@naver.com>
+Date:   Sat Feb 15 21:42:37 2025 +0900
+
+    bug: Handle non-monetized channels
+
+[33mcommit 6017d93ea3944a280fc0e44dafbd61f8365977ad[m
+Author: Dori <sky980221@naver.com>
+Date:   Fri Feb 14 09:13:40 2025 +0900
+
+    hotfix: Remove access token storage in cookies
+
+[33mcommit 8a3259d81c34f4c88cb207e4d0fc85a44d02ea21[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Feb 12 23:56:46 2025 +0900
+
+    fix: tmp changing
+
+[33mcommit 092fe6e3641276a5e6d3e454a2df411b83e3fe75[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Feb 12 21:17:01 2025 +0900
+
+    hotfix: Cors
+
+[33mcommit f1ada1b2f284dfb9dedc9c4439b6f99bb84628bb[m
+Author: sky980221 <sky980221@naver.com>
+Date:   Wed Feb 12 16:46:03 2025 +0900
+
+    hotfix: update redirect-uri for local & change paramter to body
+
+[33mcommit c100359baa68133e97f58adc43daef4dfd11988e[m
+Author: sky980221 <sky980221@naver.com>
+Date:   Tue Feb 11 13:29:01 2025 +0900
+
+    fix: rechange redirection-uri & update domain info
+
+[33mcommit 8442509f048ba7109d8bd1933fb617ec191ceb31[m
+Author: Dori <sky980221@naver.com>
+Date:   Sat Feb 8 22:25:47 2025 +0900
+
+    fix: update redirection uri
+
+[33mcommit eef4dc7202f25f962fdbc037b534140ad3a14fdf[m
+Merge: 48a1d83 99de70e
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Thu Feb 6 12:48:41 2025 +0900
+
+    Merge pull request #15 from Central-MakeUs/feature/wma-prediction
+    
+    feature: Implement wma prediction
+
+[33mcommit 99de70ed35d07c78de814d1b533655714b1d7d22[m[33m ([m[1;31morigin/feature/wma-prediction[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Thu Feb 6 12:35:33 2025 +0900
+
+    feature: Implement wma prediction
+
+[33mcommit 48a1d83bbec2feb9c794d80762afe09ef43f403b[m
+Merge: 6175323 f559abb
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Tue Feb 4 01:47:10 2025 +0900
+
+    Merge pull request #12 from Central-MakeUs/feature/calculate-strengths-weaknesses
+    
+    feature: calculate strengths and weaknesses
+
+[33mcommit f559abb4bad43fb16e1d0881ce819dd44bf77178[m[33m ([m[1;31morigin/feature/calculate-strengths-weaknesses[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Feb 4 01:18:00 2025 +0900
+
+    feature: calculate strengths and weaknesses
+
+[33mcommit 61753233120d7eb1cda94baf123beb2073683f1a[m
+Merge: 09ca357 f773bee
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Mon Feb 3 14:46:16 2025 +0900
+
+    Merge pull request #10 from Central-MakeUs/feature/oauth-cookie-auth
+    
+    fix: store OAuth token in cookie
+
+[33mcommit f773bee581b84e3298b21e0cbc51fa76068ba794[m[33m ([m[1;31morigin/feature/oauth-cookie-auth[m[33m)[m
+Author: Dori <sky980221@naver.com>
+Date:   Mon Feb 3 02:09:58 2025 +0900
+
+    fix: store OAuth token in cookie
+
+[33mcommit 09ca35731c875f1610c315947b7fb8d944546069[m
+Merge: 3217736 192180f
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Sun Feb 2 18:14:55 2025 +0900
+
+    Merge pull request #8 from Central-MakeUs/feature/flask-communication-setup
+    
+    feature: Add YouTube API stats and user info transmission to Flask server
+
+[33mcommit 192180f5236cee39482c6c0f6e568813ba1a3ef2[m
+Author: Dori <sky980221@naver.com>
+Date:   Sun Feb 2 17:53:49 2025 +0900
+
+    feature: Add YouTube API stats and user info transmission to Flask server
+
+[33mcommit 32177363ba7a117f307a143d9e74782912663b9e[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 29 18:46:51 2025 +0900
+
+    hotfix: update settings
+
+[33mcommit 72bcbfed6f9b4e44ae39e4fa65ec33b61e71c63c[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 29 18:22:11 2025 +0900
+
+    update oauth2-redirect-url
+
+[33mcommit 112ee5dfcf0b458d735c4b2a038a01aeb6b5d685[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 29 17:41:00 2025 +0900
+
+    hotfix: update gradle.yml
+
+[33mcommit 58d6b5165bccf2c3f95b603ba8c1fbf594df49fb[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 29 17:13:20 2025 +0900
+
+    hotfix: update prod.yml
+
+[33mcommit 86899bdcde5b547da46abbb7b5eb085ecf55e29f[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 29 00:38:47 2025 +0900
+
+    hotfix: delete useless files
+
+[33mcommit bb1c984ddd744c794e4cc25994ca8734e73611dc[m
+Merge: 511afe6 8ab094b
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Wed Jan 29 00:27:40 2025 +0900
+
+    Merge pull request #6 from Central-MakeUs/feature-gathering-Youtube-Data
+    
+    feature: gathering youtube data
+
+[33mcommit 8ab094b21bdc1b6831c0521f998c0a0beba19e87[m
+Merge: 0111dee 511afe6
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Wed Jan 29 00:27:30 2025 +0900
+
+    Merge branch 'main' into feature-gathering-Youtube-Data
+
+[33mcommit 0111dee04326a1ff956797a92b84ecee10566a79[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 29 00:16:13 2025 +0900
+
+    hotfix: make endDate dynamically
+
+[33mcommit 7b715d4b98d362602156bba75ec7e4ff0cae51fa[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Jan 28 23:39:59 2025 +0900
+
+    feature: Implement YouTube Analytics API response
+
+[33mcommit 3a03ac78bb52de27837a288105562e17b1baa61b[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Jan 28 23:38:06 2025 +0900
+
+    fix: temporarily No JPA required
+
+[33mcommit 864bd467411e10538778789cf144f6fcb82b0c14[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Jan 28 23:10:14 2025 +0900
+
+    hotfix: Update redirect-uri
+
+[33mcommit 289007f9ad4e6b769c23d90390759ff87190de69[m
+Author: Dori <sky980221@naver.com>
+Date:   Tue Jan 28 18:02:56 2025 +0900
+
+    feature: Implement YouTube channel profile and top 3 videos
+
+[33mcommit 511afe675cdf7ca0495b43c0e64ca2f5f8fe9b9f[m
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Wed Jan 8 23:18:40 2025 +0900
+
+    Update README.md
+
+[33mcommit 8d862083da13c8515bd3a1078cfff82c1b725374[m
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Tue Jan 7 09:08:37 2025 +0900
+
+    Update README.md
+
+[33mcommit e06f0ea80451b801566d84188d21c940f7c69ed0[m
+Merge: 2221eda b7d39a4
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Mon Jan 6 12:50:23 2025 +0900
+
+    Merge pull request #4 from Central-MakeUs/feature/infrastructure-setup
+    
+    feature: set Infrastructure
+
+[33mcommit b7d39a46f06f6c0112f59c831e2b122e5980fd72[m[33m ([m[1;31morigin/feature/infrastructure-setup[m[33m, [m[1;32mfeature/infrastructure-setup[m[33m)[m
+Author: sky980221 <sky980221@naver.com>
+Date:   Mon Jan 6 12:46:29 2025 +0900
+
+    feature: set Infrastructure
+
+[33mcommit 2221eda010ebd228bf01bd40cf11c5b2b5ed9a21[m
+Author: Dori <sky980221@naver.com>
+Date:   Fri Jan 3 23:55:41 2025 +0900
+
+    feat: CI/CD
+
+[33mcommit ba39344e2425624318dbe3c6a3a15bc872f97bb3[m
+Author: Dori <sky980221@naver.com>
+Date:   Fri Jan 3 12:56:30 2025 +0900
+
+    feat: CI/CD
+
+[33mcommit 7d1c8c9c3f0d7923a9731c117729ffa2eb49d7ac[m
+Author: sky980221 <sky980221@naver.com>
+Date:   Fri Jan 3 09:55:39 2025 +0900
+
+    feature: Create Issue Template
+
+[33mcommit 4ca4927c91c626f88f994131a77dc3c7db7bd352[m
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Fri Jan 3 02:15:33 2025 +0900
+
+    Update gradle.yml
+
+[33mcommit 432c54a3491410121cdef1a219bd53c9ac147b50[m
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Fri Jan 3 02:12:29 2025 +0900
+
+    Update gradle.yml
+
+[33mcommit 1eea79ce9475d5804793ead24f65c074ccb21b95[m
+Author: Sangdon Park <sky980221@naver.com>
+Date:   Fri Jan 3 01:58:09 2025 +0900
+
+    Create gradle.yml
+
+[33mcommit a7d97dc2a1efb1bebd64862d37c90ddb442cc429[m
+Author: Dori <sky980221@naver.com>
+Date:   Wed Jan 1 20:17:30 2025 +0900
+
+    fix: configuration 수정
