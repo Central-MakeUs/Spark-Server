@@ -71,4 +71,24 @@ public class YouTubePredictionController {
 
         return SuccessResponse.success(wmaPredictions);
     }
+
+    @Operation(
+            summary = "YouTube 채널 예측 (프론트엔드 호환용)",
+            description = """
+                    프론트엔드 호환을 위한 채널 예측 API입니다.
+                    /predictions와 동일한 기능을 제공합니다.
+                    
+                    **요청값**
+                    - `channelId`: 조회할 YouTube 채널 ID
+                    
+                    **응답값**
+                    - 3개월 뒤 조회수 예측
+                    - 3개월 뒤 구독자수 예측
+                    """
+    )
+    @GetMapping("/channel-predictions")
+    public SuccessResponse<Map<String, Double>> getChannelPredictions(@RequestParam String channelId) {
+        // 기존 /predictions와 동일한 로직 사용
+        return getWmaPredictions(channelId);
+    }
 } 
