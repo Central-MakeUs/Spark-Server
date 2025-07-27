@@ -1,14 +1,13 @@
 package com.example.spark.domain.youtube.api;
 
+import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import com.example.spark.domain.youtube.service.YouTubeDataCache;
 import com.example.spark.domain.youtube.service.YouTubePredictionService;
-import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
 import com.example.spark.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +16,6 @@ import java.util.Map;
 @Tag(name = "YouTube(Google) - Prediction", description = "YouTube 3개월 뒤 조회수/구독자수를 계산하는 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/youtube")
 public class YouTubePredictionController {
     private final YouTubePredictionService predictionService;
     private final YouTubeDataCache youTubeDataCache;
@@ -36,7 +34,7 @@ public class YouTubePredictionController {
                     - 3개월 뒤 구독자수 예측
                     """
     )
-    @GetMapping("/predictions")
+    @GetMapping("/channel-predictions")
     public SuccessResponse<Map<String, Double>> getWmaPredictions(@RequestParam String channelId) {
 
         YouTubeAnalysisResultDto analysisResult = null;
@@ -72,23 +70,5 @@ public class YouTubePredictionController {
         return SuccessResponse.success(wmaPredictions);
     }
 
-    @Operation(
-            summary = "YouTube 채널 예측 (프론트엔드 호환용)",
-            description = """
-                    프론트엔드 호환을 위한 채널 예측 API입니다.
-                    /predictions와 동일한 기능을 제공합니다.
-                    
-                    **요청값**
-                    - `channelId`: 조회할 YouTube 채널 ID
-                    
-                    **응답값**
-                    - 3개월 뒤 조회수 예측
-                    - 3개월 뒤 구독자수 예측
-                    """
-    )
-    @GetMapping("/channel-predictions")
-    public SuccessResponse<Map<String, Double>> getChannelPredictions(@RequestParam String channelId) {
-        // 기존 /predictions와 동일한 로직 사용
-        return getWmaPredictions(channelId);
-    }
+
 } 
