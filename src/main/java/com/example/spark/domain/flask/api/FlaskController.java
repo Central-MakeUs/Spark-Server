@@ -1,20 +1,20 @@
 package com.example.spark.domain.flask.api;
 
-import com.example.spark.domain.flask.dto.YouTubeDataCache;
-import com.example.spark.domain.youtube.dto.YouTubeAnalysisResultDto;
-import com.example.spark.domain.youtube.dto.YouTubeChannelStatsDto;
-import com.example.spark.domain.youtube.dto.YouTubeCombinedStatsDto;
+import com.example.spark.domain.statistics.dto.YouTubeAnalysisResultDto;
+import com.example.spark.domain.statistics.service.YouTubeDataCache;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequiredArgsConstructor
