@@ -6,37 +6,50 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class YouTubeStatisticsService {
+    
+    private static final String[] PERIODS = {"recent30Days", "days30to60", "days60to90"};
+    
     public Map<String, Double> calculateYouTubeAverageViews(List<YouTubeCombinedStatsDto> stats) {
+        validateStatsSize(stats, "평균 조회수 계산");
+        
+        return calculateAverage(stats, stat -> (double) stat.getViews());
+    }
+
+    public Map<String, Double> calculateYouTubeAverageLikes(List<YouTubeCombinedStatsDto> stats) {
+        validateStatsSize(stats, "평균 좋아요수 계산");
+        
+        return calculateAverage(stats, stat -> (double) stat.getLikes());
+    }
+
+    public Map<String, Double> calculateYouTubeAverageComments(List<YouTubeCombinedStatsDto> stats) {
+        validateStatsSize(stats, "평균 댓글수 계산");
+        
+        return calculateAverage(stats, stat -> (double) stat.getComments());
+    }
+    
+    // 검증 메서드
+    private void validateStatsSize(List<YouTubeCombinedStatsDto> stats, String operation) {
         if (stats.size() < 3) {
-            throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
+            throw new RuntimeException(operation + "을 위해 최소 3개 기간 데이터가 필요합니다.");
+        }
+    }
+    
+    // 평균 계산 메서드
+    private Map<String, Double> calculateAverage(List<YouTubeCombinedStatsDto> stats, Function<YouTubeCombinedStatsDto, Double> valueExtractor) {
+        Map<String, Double> averages = new LinkedHashMap<>(); // 순서 보장
+
+        for (int i = 0; i < PERIODS.length; i++) {
+            YouTubeCombinedStatsDto stat = stats.get(i);
+            double totalValue = valueExtractor.apply(stat);
+            int uploadedVideos = stat.getUploadedVideos();
+            double average = uploadedVideos > 0 ? totalValue / uploadedVideos : 0.0;
+            averages.put(PERIODS[i], Math.round(average * 100.0) / 100.0);
         }
 
-        Map<String, Double> averageViews = new LinkedHashMap<>(); // 순서 보장
-
-        // recent30Days
-        YouTubeCombinedStatsDto stat0 = stats.get(0);
-        double totalViews0 = stat0.getViews();
-        int uploadedVideos0 = stat0.getUploadedVideos();
-        double avgViews0 = uploadedVideos0 > 0 ? totalViews0 / uploadedVideos0 : 0.0;
-        averageViews.put("recent30Days", Math.round(avgViews0 * 100.0) / 100.0);
-
-        // days30to60
-        YouTubeCombinedStatsDto stat1 = stats.get(1);
-        double totalViews1 = stat1.getViews();
-        int uploadedVideos1 = stat1.getUploadedVideos();
-        double avgViews1 = uploadedVideos1 > 0 ? totalViews1 / uploadedVideos1 : 0.0;
-        averageViews.put("days30to60", Math.round(avgViews1 * 100.0) / 100.0);
-
-        // days60to90
-        YouTubeCombinedStatsDto stat2 = stats.get(2);
-        double totalViews2 = stat2.getViews();
-        int uploadedVideos2 = stat2.getUploadedVideos();
-        double avgViews2 = uploadedVideos2 > 0 ? totalViews2 / uploadedVideos2 : 0.0;
-        averageViews.put("days60to90", Math.round(avgViews2 * 100.0) / 100.0);
-
-        return averageViews;
+        return averages;
     }
 } 
