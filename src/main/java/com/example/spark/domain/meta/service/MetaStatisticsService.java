@@ -6,37 +6,62 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class MetaStatisticsService {
+    
+    private static final String[] PERIODS = {"recent30Days", "days30to60", "days60to90"};
+    
     public Map<String, Double> calculateMetaAverageViews(List<MetaStatsDto> stats) {
+        validateStatsSize(stats, "평균 조회수 계산");
+        
+        return calculateAverage(stats, stat -> {
+            double totalViews = stat.getViewsFollowers() + stat.getViewsNonFollowers();
+            return (double) totalViews;
+        });
+    }
+
+    public Map<String, Double> calculateMetaAverageLikes(List<MetaStatsDto> stats) {
+        validateStatsSize(stats, "평균 좋아요수 계산");
+        
+        return calculateAverage(stats, stat -> {
+            Long likes = stat.getLikes() != null ? stat.getLikes() : 0L;
+            return (double) likes;
+        });
+    }
+
+    public Map<String, Double> calculateMetaAverageComments(List<MetaStatsDto> stats) {
+        validateStatsSize(stats, "평균 댓글수 계산");
+        
+        return calculateAverage(stats, stat -> {
+            Long comments = stat.getComments() != null ? stat.getComments() : 0L;
+            return (double) comments;
+        });
+    }
+    
+    // 검증 메서드
+    private void validateStatsSize(List<MetaStatsDto> stats, String operation) {
         if (stats.size() < 3) {
-            throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
+            throw new RuntimeException(operation + "을 위해 최소 3개 기간 데이터가 필요합니다.");
         }
-
-        Map<String, Double> averageViews = new LinkedHashMap<>(); // 순서 보장
-
-        // recent30Days
-        MetaStatsDto stat0 = stats.get(0);
-        double totalViews0 = stat0.getViewsFollowers() + stat0.getViewsNonFollowers();
-        int uploadedMedia0 = stat0.getUploadedMedia() != null ? stat0.getUploadedMedia().intValue() : 0;
-        double avgViews0 = uploadedMedia0 > 0 ? totalViews0 / uploadedMedia0 : 0.0;
-        averageViews.put("recent30Days", Math.round(avgViews0 * 100.0) / 100.0);
-
-        // days30to60
-        MetaStatsDto stat1 = stats.get(1);
-        double totalViews1 = stat1.getViewsFollowers() + stat1.getViewsNonFollowers();
-        int uploadedMedia1 = stat1.getUploadedMedia() != null ? stat1.getUploadedMedia().intValue() : 0;
-        double avgViews1 = uploadedMedia1 > 0 ? totalViews1 / uploadedMedia1 : 0.0;
-        averageViews.put("days30to60", Math.round(avgViews1 * 100.0) / 100.0);
-
-        // days60to90
-        MetaStatsDto stat2 = stats.get(2);
-        double totalViews2 = stat2.getViewsFollowers() + stat2.getViewsNonFollowers();
-        int uploadedMedia2 = stat2.getUploadedMedia() != null ? stat2.getUploadedMedia().intValue() : 0;
-        double avgViews2 = uploadedMedia2 > 0 ? totalViews2 / uploadedMedia2 : 0.0;
-        averageViews.put("days60to90", Math.round(avgViews2 * 100.0) / 100.0);
-
-        return averageViews;
+    }
+    
+    // 평균 계산 메서드
+    private Map<String, Double> calculateAverage(List<MetaStatsDto> stats, Function<MetaStatsDto, Double> valueExtractor) {
+        Map<String, Double> result = new LinkedHashMap<>();
+        
+        for (int i = 0; i < PERIODS.length; i++) {
+            MetaStatsDto stat = stats.get(i);
+            String period = PERIODS[i];
+            
+            double value = valueExtractor.apply(stat);
+            int uploadedMedia = stat.getUploadedMedia() != null ? stat.getUploadedMedia().intValue() : 0;
+            double average = uploadedMedia > 0 ? value / uploadedMedia : 0.0;
+            
+            result.put(period, Math.round(average * 100.0) / 100.0);
+        }
+        
+        return result;
     }
 } 

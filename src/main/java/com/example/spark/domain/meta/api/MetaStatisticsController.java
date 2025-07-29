@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.HashMap;
 
-@Tag(name = "Meta - Statistics", description = "Instagram 미디어 1개당 평균 조회수 통계 API")
+@Tag(name = "Meta - Statistics", description = "Instagram 미디어 1개당 평균 통계 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/meta")
@@ -23,26 +24,27 @@ public class MetaStatisticsController {
     private final MetaDataCache metaDataCache;
 
     @Operation(
-            summary = "Instagram 미디어 1개당 평균 조회수 계산",
+            summary = "Instagram 미디어 성과 지표",
             description = """
-                    최근 3개 기간의 데이터를 기반으로 각 기간별 미디어 1개당 평균 조회수를 계산합니다.
+                    최근 3개 기간의 데이터를 기반으로 각 기간별 미디어 1개당 평균 조회수, 좋아요수, 댓글수를 계산합니다.
+                    향후 조회수 1회당 신규 팔로워수 등 추가 성과 지표가 포함될 예정입니다.
                     
                     **계산 공식**
-                    - 최근 30일: 최근 30일간 조회수 / 최근 30일간 업로드한 미디어수
-                    - 30~60일: 30~60일간 조회수 / 30~60일간 업로드한 미디어수  
-                    - 60~90일: 60~90일간 조회수 / 60~90일간 업로드한 미디어수
+                    - 최근 30일: 최근 30일간 지표 / 최근 30일간 업로드한 미디어수
+                    - 30~60일: 30~60일간 지표 / 30~60일간 업로드한 미디어수  
+                    - 60~90일: 60~90일간 지표 / 60~90일간 업로드한 미디어수
                     
                     **요청값**
                     - `instagramBusinessAccountId`: 조회할 Instagram 비즈니스 계정 ID
                     
                     **응답값**
-                    - `recent30Days`: 최근 30일 평균 조회수
-                    - `days30to60`: 30~60일 평균 조회수
-                    - `days60to90`: 60~90일 평균 조회수
+                    - `averageViews`: 평균 조회수 (recent30Days, days30to60, days60to90)
+                    - `averageLikes`: 평균 좋아요수 (recent30Days, days30to60, days60to90)
+                    - `averageComments`: 평균 댓글수 (recent30Days, days30to60, days60to90)
                     """
     )
-    @GetMapping("/statistics/average-views")
-    public SuccessResponse<Map<String, Double>> getMetaAverageViews(@RequestParam String instagramBusinessAccountId) {
+    @GetMapping("/statistics/performance")
+    public SuccessResponse<Map<String, Object>> getMetaPerformance(@RequestParam String instagramBusinessAccountId) {
         MetaAnalysisResultDto analysisResult = null;
         int retryCount = 0;
         int maxRetries = 3; // 최대 3회 재시도
@@ -70,9 +72,16 @@ public class MetaStatisticsController {
             throw new RuntimeException("평균 조회수 계산을 위해 최소 3개 기간 데이터가 필요합니다.");
         }
 
-        // 미디어 1개당 평균 조회수 계산 수행
+        // 미디어 1개당 평균 통계 계산 수행
         Map<String, Double> averageViews = metaStatisticsService.calculateMetaAverageViews(analysisResult.getStats());
+        Map<String, Double> averageLikes = metaStatisticsService.calculateMetaAverageLikes(analysisResult.getStats());
+        Map<String, Double> averageComments = metaStatisticsService.calculateMetaAverageComments(analysisResult.getStats());
 
-        return SuccessResponse.success(averageViews);
+        Map<String, Object> result = new HashMap<>();
+        result.put("averageViews", averageViews);
+        result.put("averageLikes", averageLikes);
+        result.put("averageComments", averageComments);
+
+        return SuccessResponse.success(result);
     }
 } 

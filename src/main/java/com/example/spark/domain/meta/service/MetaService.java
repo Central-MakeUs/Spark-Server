@@ -200,6 +200,8 @@ public class MetaService {
                     .startDate(dateRange.getStartDate())
                     .endDate(dateRange.getEndDate())
                     .impressions(insightsData.get("impressions"))
+                    .likes(insightsData.get("likes"))
+                    .comments(insightsData.get("comments"))
                     .profileStats(insightsData.get("profileStats"))
                     .followers(insightsData.get("followers"))
                     .unfollowers(insightsData.get("unfollowers"))
@@ -268,6 +270,8 @@ public class MetaService {
 
         Map<String, Long> result = new HashMap<>();
         result.put("impressions", 0L);
+        result.put("likes", 0L);
+        result.put("comments", 0L);
         result.put("profileStats", 0L);
         result.put("followers", 0L);
         result.put("unfollowers", 0L);
@@ -291,9 +295,19 @@ public class MetaService {
 
                 switch (name) {
                     case "likes":
+                        result.put("likes", value);
+                        result.put("impressions", result.get("impressions") + value);
+                        break;
                     case "comments":
+                        result.put("comments", value);
+                        result.put("impressions", result.get("impressions") + value);
+                        break;
                     case "saves":
+                        result.put("saves", value);
+                        result.put("impressions", result.get("impressions") + value);
+                        break;
                     case "shares":
+                        result.put("shares", value);
                         result.put("impressions", result.get("impressions") + value);
                         break;
                     case "profile_views":
