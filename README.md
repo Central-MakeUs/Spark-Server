@@ -16,7 +16,32 @@ Spark는 사용자 데이터를 기반으로 SNS 성장 전략을 제안하는 �
 <!-- 여기에 개발한 기능들 적어주세요!! -->
 
 <!-- ## Server Architecture -->
+## Project Structure
 
+```
+Spark/
+├── src/main/java/com/example/spark/
+│   ├── domain/
+│   │   ├── meta/           # Instagram (Meta) API
+│   │   │   ├── api/        # MetaController, MetaStatisticsController
+│   │   │   ├── dto/        # MetaStatsDto, MetaAnalysisResultDto
+│   │   │   └── service/    # MetaService, MetaStatisticsService
+│   │   ├── youtube/        # YouTube API
+│   │   │   ├── api/        # YouTubeController, YouTubeStatisticsController
+│   │   │   ├── dto/        # YouTubeCombinedStatsDto, YouTubeAnalysisResultDto
+│   │   │   └── service/    # YouTubeService, YouTubeStatisticsService
+│   │   ├── strategy/       # AI 전략 제안
+│   │   │   ├── api/        # PineconeController
+│   │   │   └── service/    # ChatGPTService, PineconeService
+│   │   └── flask/          # Flask API (Deprecated)
+│   │       └── api/        # FlaskController
+│   └── global/
+│       ├── config/         # AppConfig, SecurityConfig
+│       ├── error/          # CustomException, GlobalExceptionHandler
+│       └── response/       # SuccessResponse, ErrorResponse
+└── resources/
+    └── guides/             # 가이드 문서
+```
 
 ## Spark Developers
 - 서버 개발 담당 박상돈  sky980221@gmail.com
