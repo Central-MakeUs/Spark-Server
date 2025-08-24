@@ -31,7 +31,7 @@ public class PineconeService {
         this.index = pc.getIndexConnection(indexName);
     }
 
-    public List<String> findMostRelevantGuides(List<Float> userEmbedding) {
+    public List<String> findMostRelevantGuides(List<Float> userEmbedding, String namespace) {
         try {
             Struct filter = Struct.newBuilder()
                     .putFields("content", com.google.protobuf.Value.newBuilder()
@@ -42,10 +42,22 @@ public class PineconeService {
                     .build();
 
             QueryResponseWithUnsignedIndices queryResponse = index.query(
-                    3, userEmbedding, null, null, null, "default",
+                    3, userEmbedding, null, null, null, namespace,
                     filter, false, true
             );
-            //System.out.println("🔍 Pinecone 검색 결과: " + queryResponse.getMatchesList());
+            System.out.println("🔍 Pinecone 검색 완료 | namespace=" + namespace + 
+                    ", topK=" + 3 + ", matches=" + queryResponse.getMatchesList().size());
+            int matchIdx = 1;
+            for (var match : queryResponse.getMatchesList()) {
+                try {
+                    String id = match.getId();
+                    String content = match.getMetadata().getFieldsMap().get("content").getStringValue();
+                    String snippet = content.length() > 120 ? content.substring(0, 120) + "..." : content;
+                    System.out.println("   #" + matchIdx++ + " ▶ id=" + id + ", snippet=" + snippet);
+                } catch (Exception ignored) {
+                    System.out.println("   #" + matchIdx++ + " ▶ (메타데이터 파싱 실패)");
+                }
+            }
             return queryResponse.getMatchesList().stream()
                     .map(match -> match.getMetadata().getFieldsMap().get("content").getStringValue())
                     .collect(Collectors.toList());

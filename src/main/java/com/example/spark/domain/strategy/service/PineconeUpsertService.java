@@ -35,29 +35,25 @@ public class PineconeUpsertService {
         System.out.println("📢 Pinecone 클라이언트 초기화 완료: " + indexName);
     }
 
-    public boolean isVectorStored(String id) {
+    public boolean isVectorStored(String id, String namespace) {
         try {
             DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats(null);
             System.out.println("📌 Pinecone Index Stats: " + indexStatsResponse);
-            return indexStatsResponse.getNamespacesMap().containsKey(id);
+            return indexStatsResponse.getNamespacesMap().containsKey(namespace);
         } catch (Exception e) {
             System.err.println("🚨 Pinecone 벡터 조회 실패: " + e.getMessage());
             return false;
         }
     }
 
-    public void upsertVector(String id, List<Float> embedding, String content) {
-        if (isVectorStored(id)) {
-            System.out.println("✅ ID " + id + "는 이미 저장되어 있음. 저장하지 않음.");
-            return;
-        }
-
+    public void upsertVector(String id, List<Float> embedding, String content, String namespace) {
         Struct metadata = Struct.newBuilder()
                 .putFields("content", com.google.protobuf.Value.newBuilder().setStringValue(content).build())
                 .build();
 
 
-        index.upsert(id, embedding, null, null, metadata, "default");
+        System.out.println("📥 Upsert -> namespace=" + namespace + ", id=" + id);
+        index.upsert(id, embedding, null, null, metadata, namespace);
 
         System.out.println("✅ ID " + id + " 저장 완료.");
     }
