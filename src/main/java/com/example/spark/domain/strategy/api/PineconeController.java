@@ -10,6 +10,7 @@ import com.example.spark.global.response.ErrorResponse;
 import com.example.spark.global.response.SuccessResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,7 +56,9 @@ public class PineconeController {
             }
     )
     @PostMapping("/strategy")
-    public Mono<ResponseEntity<Map<String, String>>> requestStrategy(@RequestBody StrategyRequestDto requestDto) {
+    public Mono<ResponseEntity<Map<String, String>>> requestStrategy(
+            @RequestBody StrategyRequestDto requestDto
+    ) {
         String requestId = UUID.randomUUID().toString();
 
         String userInput = String.format(
@@ -66,7 +69,7 @@ public class PineconeController {
 
         Mono<List<String>> matchedGuidesMono = Mono.fromCallable(() -> {
             List<Float> userEmbedding = openAIEmbeddingService.getEmbedding(userInput);
-            return pineconeService.findMostRelevantGuides(userEmbedding);
+            return pineconeService.findMostRelevantGuides(userEmbedding, "default");
         }).subscribeOn(Schedulers.boundedElastic());
 
         Mono<Map<String, ?>> futureStrategyMono = matchedGuidesMono.flatMap(matchedGuides ->
@@ -81,6 +84,46 @@ public class PineconeController {
         // 캐시 활용하여 저장
         strategyCache.put(requestId, futureStrategyMono.toFuture());
 
+        return Mono.just(ResponseEntity.ok(Map.of("requestId", requestId)));
+    }
+
+    @Operation(
+            summary = "사용자 맞춤 메타 성장 전략 추천",
+            description = "메타 네임스페이스에서 가이드를 검색해 성장 전략을 생성합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공적으로 맞춤 전략을 반환",
+                            content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "서버 내부 오류",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    @PostMapping("/metaStrategy")
+    public Mono<ResponseEntity<Map<String, String>>> requestMetaStrategy(@RequestBody StrategyRequestDto requestDto) {
+        String requestId = UUID.randomUUID().toString();
+
+        String userInput = String.format(
+                "내 채널 정보: 활동 분야=%s, 작업 형태=%s, 목표=%s. 주요 약점=%s, %s",
+                requestDto.getActivityDomain(), requestDto.getWorkType(), requestDto.getSnsGoal(),
+                requestDto.getWeaknesses().get(0), requestDto.getWeaknesses().get(1)
+        );
+
+        Mono<List<String>> matchedGuidesMono = Mono.fromCallable(() -> {
+            List<Float> userEmbedding = openAIEmbeddingService.getEmbedding(userInput);
+            return pineconeService.findMostRelevantGuides(userEmbedding, "meta");
+        }).subscribeOn(Schedulers.boundedElastic());
+
+        Mono<Map<String, ?>> futureStrategyMono = matchedGuidesMono.flatMap(matchedGuides ->
+                Mono.fromCallable(() -> chatGPTService.getGrowthStrategy(
+                                requestDto.getActivityDomain(), requestDto.getWorkType(),
+                                requestDto.getSnsGoal(), requestDto.getWeaknesses(),
+                                matchedGuides
+                        )).onErrorResume(e -> Mono.just(Map.of("error", "전략 생성 실패: " + e.getMessage())))
+                        .subscribeOn(Schedulers.boundedElastic())
+        );
+
+        strategyCache.put(requestId, futureStrategyMono.toFuture());
         return Mono.just(ResponseEntity.ok(Map.of("requestId", requestId)));
     }
 
@@ -130,9 +173,12 @@ public class PineconeController {
             }
     )
     @PostMapping("/upload-guides")
-    public ResponseEntity<SuccessResponse<String>> uploadGuidesToPinecone() {
+    public ResponseEntity<SuccessResponse<String>> uploadGuidesToPinecone(
+            @Parameter(name = "namespace", description = "저장할 네임스페이스. default = 유튜브, meta= 메타")
+            @RequestParam(name = "namespace", defaultValue = "default") String namespace
+    ) {
         try {
-            guideEmbeddingService.storeTxtGuidesInPinecone();
+            guideEmbeddingService.storeTxtGuidesInPinecone(namespace);
             return ResponseEntity.ok(SuccessResponse.success("✅ 유튜브 가이드가 Pinecone에 저장되었습니다."));
         } catch (IOException e) {
             return ResponseEntity.internalServerError()
