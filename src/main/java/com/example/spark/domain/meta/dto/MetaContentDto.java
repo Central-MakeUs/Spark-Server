@@ -16,4 +16,5 @@ public class MetaContentDto {
     private String mediaType;
     private String contentUrl;
     private Long views;
+    private Long likes;
 } 

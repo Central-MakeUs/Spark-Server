@@ -104,7 +104,7 @@ public class MetaService {
 
         // Instagram 미디어 조회 (조회수 포함)
         String mediaApiUrl = "https://graph.facebook.com/v22.0/" + instagramBusinessAccountId 
-                + "/media?fields=id,caption,media_type,media_url,timestamp,thumbnail_url,insights.metric(views)";
+                + "/media?fields=id,caption,media_type,media_url,timestamp,thumbnail_url,insights.metric(views, likes)";
 
         ResponseEntity<JsonNode> mediaResponse = restTemplate.exchange(
                 mediaApiUrl, HttpMethod.GET, entity, JsonNode.class);
@@ -134,16 +134,19 @@ public class MetaService {
             }
             
             Long views = 0L;
+            Long likes = 0L;
             if (media.has("insights") && media.get("insights").has("data")) {
                 JsonNode insights = media.get("insights").get("data");
                 for (JsonNode insight : insights) {
-                    if ("views".equals(insight.get("name").asText())) {
+                    String name = insight.get("name").asText();
+                    if ("views".equals(name)) {
                         views = insight.get("values").get(0).get("value").asLong();
-                        break;
+                    } else if ("likes".equals(name)) {
+                        likes = insight.get("values").get(0).get("value").asLong();
                     }
                 }
             }
-
+            
             contents.add(MetaContentDto.builder()
                     .id(id)
                     .caption(caption)
@@ -151,6 +154,7 @@ public class MetaService {
                     .mediaType(mediaType)
                     .contentUrl(contentUrl)
                     .views(views)
+                    .likes(likes)   // 추가
                     .build());
         }
 
