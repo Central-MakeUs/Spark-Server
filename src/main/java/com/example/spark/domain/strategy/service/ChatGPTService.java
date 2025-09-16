@@ -25,8 +25,12 @@ public class ChatGPTService {
     }
 
     public Map<String, Object> getGrowthStrategy(String activityDomain, String workType, String snsGoal, List<String> weaknesses, List<String> guides) {
-        // 📌 프롬프트 생성
-        String promptTemplate = """
+        return getGrowthStrategyForPlatform("youtube", activityDomain, workType, snsGoal, weaknesses, guides);
+    }
+
+    public Map<String, Object> getGrowthStrategyForPlatform(String platform, String activityDomain, String workType, String snsGoal, List<String> weaknesses, List<String> guides) {
+        // 📌 프롬프트 생성 (플랫폼별 분기)
+        String youtubePrompt = """
                 당신은 크리에이터에게 유튜브 채널 성장 방법을 제안하는 AI입니다.
                         
                 📌 **사용자 정보**
@@ -97,8 +101,55 @@ public class ChatGPTService {
                         📌 **[유사한 가이드 목록]**
                         {{가이드목록}}
                         """;
+
+        String metaPrompt = """
+                당신은 크리에이터에게 인스타그램(메타) 계정 성장 방법을 제안하는 AI입니다.
+                
+                📌 **사용자 정보**
+                - 활동 분야 (분야): {{분야}}
+                - 작업 형태: {{작업형태}}
+                - 목표: {{목표}}
+                - 주요 약점 (지표1, 지표2): {{약점1}}, {{약점2}}
+                
+                📌 **요청사항:**
+                - 아래 제공된 guides 리스트(메타 공식/권장 리소스 기반)를 참고해 {{약점1}}, {{약점2}}를 개선할 수 있는 실행 비법 3가지를 작성합니다.
+                - guides 리스트에서 3개의 가이드를 선택하여, 가이드 1개당 비법 1개씩 총 3개 작성합니다.
+                
+                📌 **작성지침:**
+                1. 릴스(Reels), 스토리(Stories), 피드(Feed), 해시태그, 협업 태그 등 인스타그램 기능을 반영하세요.
+                2. {{분야}} 크리에이터의 메타 채널 운영 상황에 맞춰 {{약점1}}, {{약점2}} 향상에 직접 연결되는 방법으로 구체화하세요.
+                3. 각 방법은 서로 겹치지 않게, 바로 실행 가능한 단계로 작성합니다.
+                4. 말투는 20대 여성의 부드러운 어투로 친근하게 작성합니다.
+                5. 줄바꿈은 `\\n\\n`로 표시해주세요.
+                6. 실행 방법은 예시처럼 {[소제목]: [방법 설명]} 형태를 사용하세요.
+                
+                출력 포맷:
+                각 방법을 다음 JSON 형식으로 작성해 주세요.
+                
+                ```json
+                {
+                  "title": "<작성된 글 제목>",
+                  "main text": "<작성된 본문>",
+                  "source": "<원본글 출처>"
+                }
+                ```
+                
+                이렇게 나오는 결과를 아래 양식과 같게 변경해주세요.
+                📌 **출력 형식 (반드시 이 JSON 형식 유지하고 비법,제목,본문,실행 방법,출처라는 항목명 유지)**
+                {
+                  "비법1": { "제목": "...", "본문": "...", "실행 방법": ["..."], "출처": "메타 [Resource]" },
+                  "비법2": { "제목": "...", "본문": "...", "실행 방법": ["..."], "출처": "메타 [Resource]" },
+                  "비법3": { "제목": "...", "본문": "...", "실행 방법": ["..."], "출처": "메타 [Resource]" }
+                }
+                
+                📌 **[유사한 가이드 목록]**
+                {{가이드목록}}
+                """;
+
+        String selectedTemplate = "meta".equalsIgnoreCase(platform) ? metaPrompt : youtubePrompt;
+
         // 프롬프트에 변수 삽입
-        String prompt = promptTemplate
+        String prompt = selectedTemplate
                 .replace("{{분야}}", activityDomain)
                 .replace("{{작업형태}}", workType)
                 .replace("{{목표}}", snsGoal)
@@ -108,10 +159,14 @@ public class ChatGPTService {
 
 
         // OpenAI API 요청 데이터
+        String systemMessage = "meta".equalsIgnoreCase(platform)
+                ? "인스타그램(메타) 공식/권장 가이드 기반의 성장 전략을 제공하는 AI"
+                : "유튜브 공식 가이드 기반의 성장 전략을 제공하는 AI";
+
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o",
                 "messages", List.of(
-                        Map.of("role", "system", "content", "유튜브 공식 가이드 기반의 성장 전략을 제공하는 AI"),
+                        Map.of("role", "system", "content", systemMessage),
                         Map.of("role", "user", "content", prompt)
                 ),
                 "temperature", 1.0

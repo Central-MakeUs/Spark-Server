@@ -73,7 +73,8 @@ public class PineconeController {
         }).subscribeOn(Schedulers.boundedElastic());
 
         Mono<Map<String, ?>> futureStrategyMono = matchedGuidesMono.flatMap(matchedGuides ->
-                Mono.fromCallable(() -> chatGPTService.getGrowthStrategy(
+                Mono.fromCallable(() -> chatGPTService.getGrowthStrategyForPlatform(
+                                "youtube",
                                 requestDto.getActivityDomain(), requestDto.getWorkType(),
                                 requestDto.getSnsGoal(), requestDto.getWeaknesses(),
                                 matchedGuides
@@ -115,7 +116,8 @@ public class PineconeController {
         }).subscribeOn(Schedulers.boundedElastic());
 
         Mono<Map<String, ?>> futureStrategyMono = matchedGuidesMono.flatMap(matchedGuides ->
-                Mono.fromCallable(() -> chatGPTService.getGrowthStrategy(
+                Mono.fromCallable(() -> chatGPTService.getGrowthStrategyForPlatform(
+                                "meta",
                                 requestDto.getActivityDomain(), requestDto.getWorkType(),
                                 requestDto.getSnsGoal(), requestDto.getWeaknesses(),
                                 matchedGuides
