@@ -41,8 +41,8 @@ server:
 
 springdoc:
   swagger-ui:
-    server-url: https://app-spark.shop/api
-    oauth2-redirect-url: https://app-spark.shop/oauth/google
+    server-url: https://app-spark.store/api
+    oauth2-redirect-url: https://app-spark.store/oauth/google
     enable: true
     tagsSorter: alpha
 logging:
