@@ -27,7 +27,7 @@ public class OpenApiConfig {
                         .version("1.0")
                         .description("Spark API 문서"))
                 .servers(List.of(
-                        new Server().url("https://api.app-spark.shop").description("Production Server"),
+                        new Server().url("https://api.app-spark.store").description("Production Server"),
                         new Server().url("http://localhost:8080").description("Local Server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("BearerAuth")) // 모든 요청에 인증 추가
